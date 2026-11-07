@@ -6,7 +6,10 @@ and a history of the maintenance you have done.
 
 > **Status: early development.** Expect missing features and breaking changes; back up the database.
 
-![Start page with three bikes, each showing its mileage, the next maintenance due and the last one done](docs/screenshot.png)
+> **Spokebook only makes suggestions.** You are responsible for the maintenance of your bike; the
+> manufacturer's instructions always take precedence. See the [disclaimer](#disclaimer).
+
+![Start page with three bikes, each showing its mileage, the next maintenance due and the last one done](docs/bikes-desktop-dark.jpg)
 
 ## Why
 
@@ -144,6 +147,26 @@ which also builds and pushes the image.
 Dependabot proposes updates of the Go modules, base images and actions once a week.
 
 Please report security problems privately, see [SECURITY.md](SECURITY.md).
+
+## Disclaimer
+
+You maintain and repair your bike at your own responsibility. A badly maintained bike – with bolts
+tightened wrongly, worn brake pads or a damaged carbon part, for example – can cause serious
+accidents.
+
+The maintenance steps, their order, levels, intervals, hints, follow-up steps and guidance values in
+the built-in catalog and in the documentation are non-binding suggestions. They are general, not
+complete, and may be wrong for your bike and your components. A maintenance that Spokebook shows as
+finished, or a measurement it shows as within its limit, does not confirm that your bike is safe to
+ride. Spokebook only works with the values you enter.
+
+The instructions and figures of the manufacturers – torques, wear limits, service intervals, assembly
+compounds – always apply. If you are unsure about a job or lack the tools or the experience, have it
+done by a professional bike shop, in particular for brakes, steering, wheels, frame and fork, and
+e-bike batteries.
+
+Spokebook is provided without warranty, to the extent permitted by law; see sections 15 and 16 of
+the [license](LICENSE).
 
 ## License
 
