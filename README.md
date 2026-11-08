@@ -4,6 +4,9 @@ A self-hosted web app for documenting the maintenance of your bikes: components 
 mileage, a catalog of maintenance steps ordered by phase and assembly group, torques and wear limits,
 and a history of the maintenance you have done.
 
+**Website: [spokebook.org](https://spokebook.org)** with features, installation guide, documentation
+and news, in English and German.
+
 > **Status: early development.** Expect missing features and breaking changes; back up the database.
 
 > **Spokebook only makes suggestions.** You are responsible for the maintenance of your bike; the
@@ -33,7 +36,8 @@ history stays correct even if you change the catalog later.
 - **Later**: own modules in the UI, OIDC, CSV export, inviting more users, a public API, sharing
   components you entered (type, values such as wear limits and torques) with other users
 
-Details are in the [concept](docs/konzept.md) (German).
+The current state is on the [roadmap page](https://spokebook.org/en/roadmap/) of the website, details
+are in the [concept](docs/konzept.md) (German).
 
 ## Technology
 
@@ -47,6 +51,7 @@ single binary with embedded templates and migrations and needs no CGO.
 Every release is published as a container image for `linux/amd64` on the GitHub Container Registry:
 `ghcr.io/spokebook/spokebook` with the tags `<version>` (e.g. `0.3.0`), `<major>.<minor>` and `latest`.
 The image listens on port 8080 and keeps its database in `/data`; it runs as user 65532 by default.
+See also the [installation guide](https://spokebook.org/en/install/) on the website.
 
 ```yaml
 services:
@@ -137,9 +142,9 @@ Docker, the defaults in the table above apply.
 
 ## Contributing
 
-Issues and pull requests are welcome. After changing queries or migrations, run `sqlc generate` and
-commit the generated files. Conventions and the directory layout are described in
-[CLAUDE.md](CLAUDE.md).
+Issues and pull requests are welcome; see also [Contribute](https://spokebook.org/en/contribute/) on
+the website. After changing queries or migrations, run `sqlc generate` and commit the generated
+files. Conventions and the directory layout are described in [CLAUDE.md](CLAUDE.md).
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org): `fix:` leads to
 a patch release, `feat:` to a minor release, and a `BREAKING CHANGE:` footer to a major release.
