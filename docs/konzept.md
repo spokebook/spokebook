@@ -335,6 +335,8 @@ Endurain ist gestrichen, solange Garmin Connect direkt reicht.
    „Nachkaufen“ an einer Komponente).
 4. **Später**: Modulverwaltung im UI (eigene Module pro Nutzer, eigene Schritte daran, ggf. eigene
    Hinweise), OIDC, CSV-Export (die Sicherung deckt den Export vorerst
-   ab), weitere Nutzer einladen, öffentliche API, Postgres-Implementierung bei Bedarf.
+   ab), weitere Nutzer einladen, öffentliche API, Postgres-Implementierung bei Bedarf; erfasste
+   Komponenten (Typ, Hersteller, Werte wie Verschleißgrenzen und Drehmomente) mit anderen Nutzern
+   teilen, auch über Instanzen hinweg.
 5. **Nicht geplant**: Import über Strava, intervals.icu und wanderer; Import aus Endurain (gestrichen,
    solange Garmin Connect direkt reicht). Datei-Upload und Garmin Connect decken die Fahrten ab.

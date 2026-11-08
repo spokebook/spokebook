@@ -30,7 +30,8 @@ history stays correct even if you change the catalog later.
   mileage import from GPX/FIT/TCX files and Garmin Connect
 - **v0.3**: more modules switched on by bike features (hydraulic brakes, hub gear, belt drive,
   electronic shifting) and smaller improvements
-- **Later**: own modules in the UI, OIDC, CSV export, inviting more users, a public API
+- **Later**: own modules in the UI, OIDC, CSV export, inviting more users, a public API, sharing
+  components you entered (type, values such as wear limits and torques) with other users
 
 Details are in the [concept](docs/konzept.md) (German).
 
