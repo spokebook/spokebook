@@ -9,7 +9,9 @@
     "source=bike-gomodcache,target=/go/pkg/mod,type=volume",
     "source=bike-gocache,target=/home/vscode/.cache/go-build,type=volume",
     // Claude Code login and settings survive a rebuild
-    "source=bike-claude-config,target=/home/vscode/.claude,type=volume"
+    "source=bike-claude-config,target=/home/vscode/.claude,type=volume",
+    // gh login survives a rebuild
+    "source=bike-gh-config,target=/home/vscode/.config/gh,type=volume"
   ],
 
   "containerEnv": {
@@ -26,7 +28,7 @@
     "8080": { "label": "App", "onAutoForward": "notify" }
   },
 
-  "postCreateCommand": "sudo chown -R vscode /go/pkg/mod /home/vscode/.cache /home/vscode/.claude && mkdir -p data && if [ -f go.mod ]; then go mod download; fi",
+  "postCreateCommand": "sudo chown -R vscode /go/pkg/mod /home/vscode/.cache /home/vscode/.claude /home/vscode/.config/gh && mkdir -p data && if [ -f go.mod ]; then go mod download; fi",
 
   "customizations": {
     "vscode": {
