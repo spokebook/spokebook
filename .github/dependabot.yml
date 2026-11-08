@@ -1,6 +1,7 @@
 # Weekly update pull requests. Go modules and base images end up in the released image, so their
 # commits start with fix(deps) and lead to a patch release with a new image; updates of the actions
-# only touch CI and start with ci(deps), which releases nothing.
+# and of semantic-release (npm, .github/release) only touch CI and start with ci(deps), which releases
+# nothing.
 version: 2
 updates:
   - package-ecosystem: gomod
@@ -21,6 +22,17 @@ updates:
     commit-message:
       prefix: fix
       include: scope
+
+  - package-ecosystem: npm
+    directory: /.github/release
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      semantic-release:
+        patterns: ["*"]
 
   - package-ecosystem: github-actions
     directory: /

@@ -49,8 +49,11 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
+      # semantic-release and all its dependencies are pinned in .github/release/package-lock.json;
+      # --ignore-scripts keeps install scripts of dependencies from running in this job.
+      - run: npm ci --prefix .github/release --ignore-scripts --no-audit --no-fund
       - id: release
-        run: npx --yes -p semantic-release@25.0.9 -p @semantic-release/exec@7.1.0 semantic-release
+        run: .github/release/node_modules/.bin/semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
