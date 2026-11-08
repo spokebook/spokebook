@@ -1,0 +1,9 @@
+{
+  "name": "spokebook-release",
+  "private": true,
+  "description": "Pinned semantic-release for the release job in .github/workflows/ci.yml",
+  "devDependencies": {
+    "@semantic-release/exec": "7.1.0",
+    "semantic-release": "25.0.9"
+  }
+}
