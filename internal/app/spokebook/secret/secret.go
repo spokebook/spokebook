@@ -49,7 +49,7 @@ func New(key string) (*Box, error) {
 // Seal encrypts plain. The purpose (e.g. owner and source) is bound to the
 // result, so it can't be opened for another one.
 func (b *Box) Seal(plain []byte, purpose string) []byte {
-	nonce := make([]byte, b.aead.NonceSize(), b.aead.NonceSize()+len(plain)+b.aead.Overhead())
+	nonce := make([]byte, b.aead.NonceSize())
 	_, _ = rand.Read(nonce)
 	return b.aead.Seal(nonce, nonce, plain, []byte(purpose))
 }

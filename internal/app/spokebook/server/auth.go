@@ -88,11 +88,15 @@ func (s *Server) startSession(w http.ResponseWriter, r *http.Request, userID str
 // tabs and newlines from a URL, so "/\t/evil.example" would lead away;
 // url.Parse rejects such control characters.
 func safeNext(next string) string {
-	if _, err := url.Parse(next); err != nil ||
-		!strings.HasPrefix(next, "/") || strings.HasPrefix(next, "//") || strings.HasPrefix(next, "/\\") {
+	if !strings.HasPrefix(next, "/") || strings.HasPrefix(next, "//") || strings.HasPrefix(next, "/\\") {
 		return "/"
 	}
-	return next
+	// Browsers treat a backslash like a slash, so check the URL as they see it.
+	u, err := url.Parse(strings.ReplaceAll(next, "\\", "/"))
+	if err != nil || u.Scheme != "" || u.Hostname() != "" {
+		return "/"
+	}
+	return u.String()
 }
 
 // authError translates errors of package auth; "" means unexpected.
