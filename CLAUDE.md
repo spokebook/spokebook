@@ -116,13 +116,13 @@ The main session runs on Opus and acts as lead: it plans, delegates to the subag
 `.claude/agents`, reviews and commits. Subagents cannot start other subagents, so the lead is always
 the main session.
 
-- **New features and larger behavior changes**: follow the `/feature` skill (`developer` on Sonnet
-  implements, `tester` on Sonnet writes tests and checks the UI, `security-inspector` on Opus reviews
-  the diff read-only). This applies even when the request does not name the skill.
+- **New features and larger behavior changes**: follow the `/feature` skill (`developer` implements,
+  `tester` writes tests and checks the UI, `reviewer` checks correctness and completeness,
+  `security-inspector` checks security; all on Opus, reviewers read-only). This applies even when the request does not name the skill.
   For larger features the lead may start several instances of the same agent type in parallel
   where the work splits into independent parts (rules in the skill).
-- **Bug fixes**: follow `/bugfix` (failing test first, security review when auth, handlers, uploads,
-  parsers, queries or templates are touched).
+- **Bug fixes**: follow `/bugfix` (failing test first, `reviewer` on the fix, security review when
+  auth, handlers, uploads, parsers, queries or templates are touched).
 - **Dependency updates and Dependabot PRs**: follow `/deps` (`dependency-updater` on Sonnet; security
   review only for major or new dependencies, htmx/Pico, crypto, auth or parser libraries).
 - **Small changes** (typos, docs, single texts): no subagents, edit directly.
