@@ -211,9 +211,9 @@ func (s *Server) replaceForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// The new component starts with the old one's details and values,
-	// except the dates that belong to the old part.
+	// except the dates and the serial number that belong to the old part.
 	for k, vals := range componentForm(v.Component, vs) {
-		if k != "purchased_at" && k != "replace_by" {
+		if k != "purchased_at" && k != "replace_by" && k != "serial_number" {
 			form[k] = vals
 		}
 	}

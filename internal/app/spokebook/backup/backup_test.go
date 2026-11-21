@@ -79,7 +79,7 @@ func fill(t *testing.T, st store.Store, owner string) {
 
 	_, err = st.Bikes().CreateBike(ctx, store.Bike{
 		ID: "b1", OwnerID: owner, Name: "Gravel", Type: "gravel", Notes: "n", Origin: "self_built",
-		PurchasedAt: ptrAt("2025-03-01T00:00:00Z"), Dealer: "Shop", PriceCents: ptr64(250000), Currency: "EUR",
+		PurchasedAt: ptrAt("2025-03-01T00:00:00Z"), Dealer: "Shop", SerialNumber: "WTU123", PriceCents: ptr64(250000), Currency: "EUR",
 		InServiceAt: ptrAt("2025-03-02T00:00:00Z"), InServiceM: ptr64(0), Features: []string{"carbon", "tubeless"},
 		CreatedAt: at("2025-03-01T10:00:00Z"),
 	})
@@ -97,7 +97,7 @@ func fill(t *testing.T, st store.Store, owner string) {
 	must(t, err)
 
 	_, err = cs.CreateComponent(ctx, store.Component{
-		ID: "c1", OwnerID: owner, Type: "chain", Manufacturer: "KMC", Model: "X11", PartNumber: "123",
+		ID: "c1", OwnerID: owner, Type: "chain", Manufacturer: "KMC", Model: "X11", PartNumber: "123", SerialNumber: "SN-1",
 		PurchasedAt: ptrAt("2025-03-01T00:00:00Z"), Dealer: "Shop", PriceCents: ptr64(3000), Currency: "EUR",
 		MaxDistanceM: ptr64(3000000), ReplaceBy: ptrAt("2027-01-01T00:00:00Z"), URL: "https://example.com",
 		Notes: "n", CreatedAt: at("2025-03-01T10:00:00Z"),

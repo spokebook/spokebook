@@ -24,8 +24,11 @@ type Bike struct {
 	Origin      string
 	PurchasedAt *time.Time
 	Dealer      string
-	PriceCents  *int64
-	Currency    string
+	// SerialNumber is the manufacturer's serial number, e.g. the frame
+	// number; empty if unknown.
+	SerialNumber string
+	PriceCents   *int64
+	Currency     string
 	// InServiceAt and InServiceM: since when the bike is used and its
 	// odometer then (0 for new bikes, the taken-over value for used ones).
 	InServiceAt *time.Time
@@ -225,7 +228,10 @@ type Component struct {
 	Manufacturer string
 	Model        string
 	// PartNumber is the manufacturer's part number.
-	PartNumber   string
+	PartNumber string
+	// SerialNumber is the manufacturer's serial number of this physical
+	// part; empty if unknown.
+	SerialNumber string
 	PurchasedAt  *time.Time
 	Dealer       string
 	PriceCents   *int64

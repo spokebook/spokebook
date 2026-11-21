@@ -14,7 +14,7 @@ type bikeStore struct{ q *db.Queries }
 func toBike(r db.Bike) (store.Bike, error) {
 	b := store.Bike{
 		ID: r.ID, OwnerID: r.OwnerID, Name: r.Name, Type: r.Type, Notes: r.Notes,
-		Origin: r.Origin, Dealer: r.Dealer, PriceCents: intPtr(r.PriceCents), Currency: r.Currency,
+		Origin: r.Origin, Dealer: r.Dealer, SerialNumber: r.SerialNumber, PriceCents: intPtr(r.PriceCents), Currency: r.Currency,
 		InServiceM: intPtr(r.InServiceM), Features: strings.Fields(r.Features), RetireReason: r.RetireReason,
 	}
 	var err error
@@ -36,7 +36,7 @@ func toBike(r db.Bike) (store.Bike, error) {
 func (s bikeStore) CreateBike(ctx context.Context, b store.Bike) (store.Bike, error) {
 	r, err := s.q.CreateBike(ctx, db.CreateBikeParams{
 		ID: b.ID, OwnerID: b.OwnerID, Name: b.Name, Type: b.Type, Notes: b.Notes,
-		Origin: b.Origin, PurchasedAt: nullTime(b.PurchasedAt), Dealer: b.Dealer,
+		Origin: b.Origin, PurchasedAt: nullTime(b.PurchasedAt), Dealer: b.Dealer, SerialNumber: b.SerialNumber,
 		PriceCents: nullInt(b.PriceCents), Currency: b.Currency,
 		InServiceAt: nullTime(b.InServiceAt), InServiceM: nullInt(b.InServiceM),
 		Features: strings.Join(b.Features, " "), CreatedAt: formatTime(b.CreatedAt),
@@ -74,7 +74,7 @@ func (s bikeStore) ListBikes(ctx context.Context, ownerID string) ([]store.Bike,
 func (s bikeStore) UpdateBike(ctx context.Context, b store.Bike) error {
 	n, err := s.q.UpdateBike(ctx, db.UpdateBikeParams{
 		Name: b.Name, Type: b.Type, Notes: b.Notes,
-		Origin: b.Origin, PurchasedAt: nullTime(b.PurchasedAt), Dealer: b.Dealer,
+		Origin: b.Origin, PurchasedAt: nullTime(b.PurchasedAt), Dealer: b.Dealer, SerialNumber: b.SerialNumber,
 		PriceCents: nullInt(b.PriceCents), Currency: b.Currency,
 		InServiceAt: nullTime(b.InServiceAt), InServiceM: nullInt(b.InServiceM),
 		Features: strings.Join(b.Features, " "), OwnerID: b.OwnerID, ID: b.ID,

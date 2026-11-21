@@ -131,6 +131,7 @@ func parseBikeForm(r *http.Request, b *store.Bike) string {
 	b.Notes = strings.TrimSpace(r.FormValue("notes"))
 	b.Origin = r.FormValue("origin")
 	b.Dealer = strings.TrimSpace(r.FormValue("dealer"))
+	b.SerialNumber = strings.TrimSpace(r.FormValue("serial_number"))
 	b.Features = bikes.SortFeatures(r.Form["feature"])
 	if b.Name == "" {
 		return "error.name_required"
@@ -171,6 +172,7 @@ func bikeForm(b store.Bike) url.Values {
 		"origin":        {b.Origin},
 		"purchased_at":  {optValue(b.PurchasedAt, dateValue)},
 		"dealer":        {b.Dealer},
+		"serial_number": {b.SerialNumber},
 		"price":         {optValue(b.PriceCents, centsValue)},
 		"currency":      {b.Currency},
 		"in_service_at": {optValue(b.InServiceAt, dateValue)},

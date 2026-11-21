@@ -1,7 +1,8 @@
 -- name: CreateComponent :one
-INSERT INTO components (id, owner_id, type, manufacturer, model, part_number, purchased_at, dealer,
-                        price_cents, currency, max_distance_m, replace_by, url, notes, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO components (id, owner_id, type, manufacturer, model, part_number, serial_number,
+                        purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, url,
+                        notes, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING *;
 
 -- name: GetComponent :one
@@ -33,7 +34,7 @@ SELECT * FROM installations WHERE owner_id = ? ORDER BY installed_at;
 
 -- name: UpdateComponent :execrows
 UPDATE components
-SET type = ?, manufacturer = ?, model = ?, part_number = ?, purchased_at = ?, dealer = ?, price_cents = ?,
+SET type = ?, manufacturer = ?, model = ?, part_number = ?, serial_number = ?, purchased_at = ?, dealer = ?, price_cents = ?,
     currency = ?, max_distance_m = ?, replace_by = ?, url = ?, notes = ?
 WHERE owner_id = ? AND id = ?;
 

@@ -146,3 +146,47 @@ func TestValueInfoMigration(t *testing.T) {
 		t.Errorf("info rejected: %v", err)
 	}
 }
+
+// TestSerialNumberMigration checks that existing bikes and components get
+// an empty serial number.
+func TestSerialNumberMigration(t *testing.T) {
+	ctx := context.Background()
+	sqlDB, err := sql.Open("sqlite", "file::memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sqlDB.SetMaxOpenConns(1)
+	t.Cleanup(func() { _ = sqlDB.Close() })
+	goose.SetBaseFS(migrations)
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		t.Fatal(err)
+	}
+	if err := goose.UpToContext(ctx, sqlDB, "migrations", 25); err != nil {
+		t.Fatal(err)
+	}
+	_, err = sqlDB.ExecContext(ctx, `INSERT INTO bikes (id, owner_id, name, created_at) VALUES ('b1', 'o1', 'Gravel', '2026-01-01T00:00:00Z');
+		INSERT INTO components (id, owner_id, type, part_number, created_at) VALUES ('c1', 'o1', 'chain', 'P1', '2026-01-01T00:00:00Z')`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := goose.UpToContext(ctx, sqlDB, "migrations", 26); err != nil {
+		t.Fatal(err)
+	}
+	for _, q := range []string{`SELECT serial_number FROM bikes WHERE id = 'b1'`, `SELECT serial_number FROM components WHERE id = 'c1'`} {
+		var sn string
+		if err := sqlDB.QueryRowContext(ctx, q).Scan(&sn); err != nil || sn != "" {
+			t.Errorf("%s: %q, %v", q, sn, err)
+		}
+	}
+	var pn string
+	if err := sqlDB.QueryRowContext(ctx, `SELECT part_number FROM components WHERE id = 'c1'`).Scan(&pn); err != nil || pn != "P1" {
+		t.Errorf("part number: %q, %v", pn, err)
+	}
+	// Down and up again.
+	if err := goose.DownToContext(ctx, sqlDB, "migrations", 25); err != nil {
+		t.Fatalf("down: %v", err)
+	}
+	if err := goose.UpToContext(ctx, sqlDB, "migrations", 26); err != nil {
+		t.Fatalf("up again: %v", err)
+	}
+}

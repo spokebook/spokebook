@@ -103,10 +103,11 @@ func (q *Queries) CountInstallationsOnBike(ctx context.Context, arg CountInstall
 }
 
 const createComponent = `-- name: CreateComponent :one
-INSERT INTO components (id, owner_id, type, manufacturer, model, part_number, purchased_at, dealer,
-                        price_cents, currency, max_distance_m, replace_by, url, notes, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number
+INSERT INTO components (id, owner_id, type, manufacturer, model, part_number, serial_number,
+                        purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, url,
+                        notes, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number, serial_number
 `
 
 type CreateComponentParams struct {
@@ -116,6 +117,7 @@ type CreateComponentParams struct {
 	Manufacturer string
 	Model        string
 	PartNumber   string
+	SerialNumber string
 	PurchasedAt  sql.NullString
 	Dealer       string
 	PriceCents   sql.NullInt64
@@ -135,6 +137,7 @@ func (q *Queries) CreateComponent(ctx context.Context, arg CreateComponentParams
 		arg.Manufacturer,
 		arg.Model,
 		arg.PartNumber,
+		arg.SerialNumber,
 		arg.PurchasedAt,
 		arg.Dealer,
 		arg.PriceCents,
@@ -164,6 +167,7 @@ func (q *Queries) CreateComponent(ctx context.Context, arg CreateComponentParams
 		&i.RetiredAt,
 		&i.RetireReason,
 		&i.PartNumber,
+		&i.SerialNumber,
 	)
 	return i, err
 }
@@ -203,7 +207,7 @@ func (q *Queries) DeleteInstallation(ctx context.Context, arg DeleteInstallation
 }
 
 const getComponent = `-- name: GetComponent :one
-SELECT id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number FROM components WHERE owner_id = ? AND id = ?
+SELECT id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number, serial_number FROM components WHERE owner_id = ? AND id = ?
 `
 
 type GetComponentParams struct {
@@ -232,6 +236,7 @@ func (q *Queries) GetComponent(ctx context.Context, arg GetComponentParams) (Com
 		&i.RetiredAt,
 		&i.RetireReason,
 		&i.PartNumber,
+		&i.SerialNumber,
 	)
 	return i, err
 }
@@ -306,7 +311,7 @@ func (q *Queries) ListAllInstallations(ctx context.Context, ownerID string) ([]I
 }
 
 const listComponents = `-- name: ListComponents :many
-SELECT id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number FROM components WHERE owner_id = ? ORDER BY type, manufacturer, model
+SELECT id, owner_id, type, manufacturer, model, purchased_at, dealer, price_cents, currency, max_distance_m, replace_by, notes, created_at, url, retired_at, retire_reason, part_number, serial_number FROM components WHERE owner_id = ? ORDER BY type, manufacturer, model
 `
 
 func (q *Queries) ListComponents(ctx context.Context, ownerID string) ([]Component, error) {
@@ -336,6 +341,7 @@ func (q *Queries) ListComponents(ctx context.Context, ownerID string) ([]Compone
 			&i.RetiredAt,
 			&i.RetireReason,
 			&i.PartNumber,
+			&i.SerialNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -505,7 +511,7 @@ func (q *Queries) SetInstallationDistances(ctx context.Context, arg SetInstallat
 
 const updateComponent = `-- name: UpdateComponent :execrows
 UPDATE components
-SET type = ?, manufacturer = ?, model = ?, part_number = ?, purchased_at = ?, dealer = ?, price_cents = ?,
+SET type = ?, manufacturer = ?, model = ?, part_number = ?, serial_number = ?, purchased_at = ?, dealer = ?, price_cents = ?,
     currency = ?, max_distance_m = ?, replace_by = ?, url = ?, notes = ?
 WHERE owner_id = ? AND id = ?
 `
@@ -515,6 +521,7 @@ type UpdateComponentParams struct {
 	Manufacturer string
 	Model        string
 	PartNumber   string
+	SerialNumber string
 	PurchasedAt  sql.NullString
 	Dealer       string
 	PriceCents   sql.NullInt64
@@ -533,6 +540,7 @@ func (q *Queries) UpdateComponent(ctx context.Context, arg UpdateComponentParams
 		arg.Manufacturer,
 		arg.Model,
 		arg.PartNumber,
+		arg.SerialNumber,
 		arg.PurchasedAt,
 		arg.Dealer,
 		arg.PriceCents,

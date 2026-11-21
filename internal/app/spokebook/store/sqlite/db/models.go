@@ -44,6 +44,7 @@ type Bike struct {
 	InServiceAt  sql.NullString
 	InServiceM   sql.NullInt64
 	Features     string
+	SerialNumber string
 }
 
 type BikeValue struct {
@@ -78,6 +79,7 @@ type Component struct {
 	RetiredAt    sql.NullString
 	RetireReason string
 	PartNumber   string
+	SerialNumber string
 }
 
 type ComponentType struct {

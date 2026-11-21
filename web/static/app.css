@@ -144,7 +144,7 @@ td small, label small { color: var(--pico-muted-color); }
 /* Details as a two-column list. */
 dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
 dt { font-weight: 600; }
-dd { margin: 0; }
+dd { margin: 0; overflow-wrap: anywhere; }
 
 /* min-width: fieldsets otherwise grow with wide content (value tables,
    long select options) beyond the screen. */

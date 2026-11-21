@@ -347,6 +347,7 @@
   "component.field.purchased_at": "Kaufdatum",
   "component.field.removed_at": "Ausgebaut am",
   "component.field.replace_by": "Austausch bis",
+  "component.field.serial_number": "Seriennummer",
   "component.field.type": "Typ",
   "component.field.url": "Link",
   "component.history": "Verlauf",

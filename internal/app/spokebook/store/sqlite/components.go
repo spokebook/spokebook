@@ -14,7 +14,7 @@ type componentStore struct{ q *db.Queries }
 func toComponent(r db.Component) (store.Component, error) {
 	c := store.Component{
 		ID: r.ID, OwnerID: r.OwnerID, Type: r.Type, Manufacturer: r.Manufacturer, Model: r.Model,
-		PartNumber: r.PartNumber, Dealer: r.Dealer, PriceCents: intPtr(r.PriceCents), Currency: r.Currency,
+		PartNumber: r.PartNumber, SerialNumber: r.SerialNumber, Dealer: r.Dealer, PriceCents: intPtr(r.PriceCents), Currency: r.Currency,
 		MaxDistanceM: intPtr(r.MaxDistanceM), URL: r.Url, Notes: r.Notes, RetireReason: r.RetireReason,
 	}
 	var err error
@@ -55,7 +55,7 @@ func toInstallation(r db.Installation) (store.Installation, error) {
 func (s componentStore) CreateComponent(ctx context.Context, c store.Component) (store.Component, error) {
 	r, err := s.q.CreateComponent(ctx, db.CreateComponentParams{
 		ID: c.ID, OwnerID: c.OwnerID, Type: c.Type, Manufacturer: c.Manufacturer, Model: c.Model,
-		PartNumber: c.PartNumber, PurchasedAt: nullTime(c.PurchasedAt), Dealer: c.Dealer, PriceCents: nullInt(c.PriceCents),
+		PartNumber: c.PartNumber, SerialNumber: c.SerialNumber, PurchasedAt: nullTime(c.PurchasedAt), Dealer: c.Dealer, PriceCents: nullInt(c.PriceCents),
 		Currency: c.Currency, MaxDistanceM: nullInt(c.MaxDistanceM), ReplaceBy: nullTime(c.ReplaceBy),
 		Url: c.URL, Notes: c.Notes, CreatedAt: formatTime(c.CreatedAt),
 	})
@@ -141,8 +141,9 @@ func convertAll[R, T any](rows []R, conv func(R) (T, error)) ([]T, error) {
 func (s componentStore) UpdateComponent(ctx context.Context, c store.Component) error {
 	n, err := s.q.UpdateComponent(ctx, db.UpdateComponentParams{
 		Type: c.Type, Manufacturer: c.Manufacturer, Model: c.Model, PartNumber: c.PartNumber,
-		PurchasedAt: nullTime(c.PurchasedAt),
-		Dealer:      c.Dealer, PriceCents: nullInt(c.PriceCents), Currency: c.Currency,
+		SerialNumber: c.SerialNumber,
+		PurchasedAt:  nullTime(c.PurchasedAt),
+		Dealer:       c.Dealer, PriceCents: nullInt(c.PriceCents), Currency: c.Currency,
 		MaxDistanceM: nullInt(c.MaxDistanceM), ReplaceBy: nullTime(c.ReplaceBy), Url: c.URL, Notes: c.Notes,
 		OwnerID: c.OwnerID, ID: c.ID,
 	})

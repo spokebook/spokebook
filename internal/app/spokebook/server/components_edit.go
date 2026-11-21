@@ -12,18 +12,19 @@ import (
 // componentForm prefills the component form with c and its values.
 func componentForm(c store.Component, vs []store.Value) url.Values {
 	return valueForm(url.Values{
-		"type":         {c.Type},
-		"manufacturer": {c.Manufacturer},
-		"model":        {c.Model},
-		"part_number":  {c.PartNumber},
-		"purchased_at": {optValue(c.PurchasedAt, dateValue)},
-		"dealer":       {c.Dealer},
-		"price":        {optValue(c.PriceCents, centsValue)},
-		"currency":     {c.Currency},
-		"max_km":       {optValue(c.MaxDistanceM, kmValue)},
-		"replace_by":   {optValue(c.ReplaceBy, dateValue)},
-		"url":          {c.URL},
-		"notes":        {c.Notes},
+		"type":          {c.Type},
+		"manufacturer":  {c.Manufacturer},
+		"model":         {c.Model},
+		"part_number":   {c.PartNumber},
+		"serial_number": {c.SerialNumber},
+		"purchased_at":  {optValue(c.PurchasedAt, dateValue)},
+		"dealer":        {c.Dealer},
+		"price":         {optValue(c.PriceCents, centsValue)},
+		"currency":      {c.Currency},
+		"max_km":        {optValue(c.MaxDistanceM, kmValue)},
+		"replace_by":    {optValue(c.ReplaceBy, dateValue)},
+		"url":           {c.URL},
+		"notes":         {c.Notes},
 	}, vs)
 }
 
@@ -272,7 +273,10 @@ func (s *Server) renderNewComponent(w http.ResponseWriter, r *http.Request, stat
 				s.fail(w, r, err)
 				return
 			}
-			data["Form"] = componentForm(src, vs)
+			form := componentForm(src, vs)
+			// A duplicate is another physical part with its own serial number.
+			form.Del("serial_number")
+			data["Form"] = form
 		}
 	}
 	s.render(w, r, status, "component_new.html", data)

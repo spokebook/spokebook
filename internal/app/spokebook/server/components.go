@@ -298,6 +298,7 @@ func (s *Server) parseComponentFields(r *http.Request, c *store.Component) (stri
 	c.Manufacturer = strings.TrimSpace(r.FormValue("manufacturer"))
 	c.Model = strings.TrimSpace(r.FormValue("model"))
 	c.PartNumber = strings.TrimSpace(r.FormValue("part_number"))
+	c.SerialNumber = strings.TrimSpace(r.FormValue("serial_number"))
 	c.Dealer = strings.TrimSpace(r.FormValue("dealer"))
 	c.Notes = strings.TrimSpace(r.FormValue("notes"))
 	if _, err := components.ActiveType(r.Context(), s.store, ownerID(r.Context()), c.Type); errors.Is(err, components.ErrInvalidType) {

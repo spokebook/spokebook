@@ -41,7 +41,10 @@
   <label>{{t "component.field.model"}} <input name="model" value="{{.Form.Get "model"}}"></label>
 </div>
 <datalist id="manufacturers">{{range .Manufacturers}}<option value="{{.}}">{{end}}</datalist>
-<label>{{t "component.field.part_number"}} <input name="part_number" value="{{.Form.Get "part_number"}}"></label>
+<div class="grid">
+  <label>{{t "component.field.part_number"}} <input name="part_number" value="{{.Form.Get "part_number"}}"></label>
+  <label>{{t "component.field.serial_number"}} <input name="serial_number" autocomplete="off" value="{{.Form.Get "serial_number"}}"></label>
+</div>
 <div class="grid">
   <label>{{t "component.field.purchased_at"}} <input type="date" name="purchased_at" value="{{.Form.Get "purchased_at"}}"></label>
   <label>{{t "component.field.dealer"}} <input name="dealer" list="dealers" autocomplete="off" value="{{.Form.Get "dealer"}}"></label>
@@ -110,6 +113,7 @@
   <label>{{t "bikes.field.name"}}<span class="req" aria-hidden="true">*</span> <input name="name" value="{{.Form.Get "name"}}" required></label>
   <label>{{t "bikes.field.type"}} <input name="type" value="{{.Form.Get "type"}}" placeholder="{{t "bikes.field.type.placeholder"}}"></label>
 </div>
+<label>{{t "component.field.serial_number"}} <input name="serial_number" autocomplete="off" value="{{.Form.Get "serial_number"}}"></label>
 <fieldset>
   <legend>{{t "bike.origin"}}</legend>
   <label>{{t "bike.field.origin"}}

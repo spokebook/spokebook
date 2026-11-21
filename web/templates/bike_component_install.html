@@ -10,7 +10,7 @@
 <form method="post" action="/bikes/{{.Bike.ID}}/components/install">
   <label>{{t "components.col.component"}}<span class="req" aria-hidden="true">*</span>
     <select name="component" required>
-      {{range .Spares}}<option value="{{.ID}}"{{if eq .ID ($.Form.Get "component")}} selected{{end}}>{{.TypeName}}{{if or .Manufacturer .Model}}: {{.Manufacturer}} {{.Model}}{{end}}</option>{{end}}
+      {{range .Spares}}<option value="{{.ID}}"{{if eq .ID ($.Form.Get "component")}} selected{{end}}>{{.TypeName}}{{if or .Manufacturer .Model}}: {{.Manufacturer}} {{.Model}}{{end}}{{with .SerialNumber}} ({{.}}){{end}}</option>{{end}}
     </select>
   </label>
   {{template "mount-fields" .}}

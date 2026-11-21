@@ -20,6 +20,7 @@
   {{with $c.Manufacturer}}<dt>{{t "component.field.manufacturer"}}</dt><dd>{{.}}</dd>{{end}}
   {{with $c.Model}}<dt>{{t "component.field.model"}}</dt><dd>{{.}}</dd>{{end}}
   {{with $c.PartNumber}}<dt>{{t "component.field.part_number"}}</dt><dd>{{.}}</dd>{{end}}
+  {{with $c.SerialNumber}}<dt>{{t "component.field.serial_number"}}</dt><dd>{{.}}</dd>{{end}}
   {{with $c.PurchasedAt}}<dt>{{t "component.field.purchased_at"}}</dt><dd>{{date .}}</dd>{{end}}
   {{with $c.Dealer}}<dt>{{t "component.field.dealer"}}</dt><dd>{{.}}</dd>{{end}}
   {{with $c.PriceCents}}<dt>{{t "component.field.price"}}</dt><dd>{{money . $c.Currency}}</dd>{{end}}

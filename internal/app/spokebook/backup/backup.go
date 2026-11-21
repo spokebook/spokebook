@@ -53,9 +53,9 @@ func Export(ctx context.Context, st store.Store, ownerID string) (File, error) {
 	for _, b := range bikes {
 		fb := Bike{
 			ID: b.ID, Name: b.Name, Type: b.Type, Notes: b.Notes, Origin: b.Origin, PurchasedAt: b.PurchasedAt,
-			Dealer: b.Dealer, PriceCents: b.PriceCents, Currency: b.Currency, InServiceAt: b.InServiceAt,
-			InServiceM: b.InServiceM, Features: b.Features, CreatedAt: b.CreatedAt, RetiredAt: b.RetiredAt,
-			RetireReason: b.RetireReason,
+			Dealer: b.Dealer, SerialNumber: b.SerialNumber, PriceCents: b.PriceCents, Currency: b.Currency,
+			InServiceAt: b.InServiceAt, InServiceM: b.InServiceM, Features: b.Features, CreatedAt: b.CreatedAt,
+			RetiredAt: b.RetiredAt, RetireReason: b.RetireReason,
 		}
 		vs, err := st.Bikes().ListBikeValues(ctx, ownerID, b.ID)
 		if err != nil {
@@ -91,8 +91,8 @@ func Export(ctx context.Context, st store.Store, ownerID string) (File, error) {
 	for _, c := range comps {
 		fc := Component{
 			ID: c.ID, Type: c.Type, Manufacturer: c.Manufacturer, Model: c.Model, PartNumber: c.PartNumber,
-			PurchasedAt: c.PurchasedAt, Dealer: c.Dealer, PriceCents: c.PriceCents, Currency: c.Currency,
-			MaxDistanceM: c.MaxDistanceM, ReplaceBy: c.ReplaceBy, URL: c.URL, Notes: c.Notes,
+			SerialNumber: c.SerialNumber, PurchasedAt: c.PurchasedAt, Dealer: c.Dealer, PriceCents: c.PriceCents,
+			Currency: c.Currency, MaxDistanceM: c.MaxDistanceM, ReplaceBy: c.ReplaceBy, URL: c.URL, Notes: c.Notes,
 			CreatedAt: c.CreatedAt, RetiredAt: c.RetiredAt, RetireReason: c.RetireReason,
 		}
 		vs, err := st.Components().ListComponentValues(ctx, ownerID, c.ID)
@@ -350,8 +350,9 @@ func restore(ctx context.Context, tx store.Stores, ownerID string, f File) error
 		}
 		_, err := tx.Bikes().CreateBike(ctx, store.Bike{
 			ID: b.ID, OwnerID: ownerID, Name: b.Name, Type: b.Type, Notes: b.Notes, Origin: b.Origin,
-			PurchasedAt: b.PurchasedAt, Dealer: b.Dealer, PriceCents: b.PriceCents, Currency: b.Currency,
-			InServiceAt: b.InServiceAt, InServiceM: b.InServiceM, Features: b.Features, CreatedAt: b.CreatedAt,
+			PurchasedAt: b.PurchasedAt, Dealer: b.Dealer, SerialNumber: b.SerialNumber,
+			PriceCents: b.PriceCents, Currency: b.Currency, InServiceAt: b.InServiceAt, InServiceM: b.InServiceM,
+			Features: b.Features, CreatedAt: b.CreatedAt,
 		})
 		if err != nil {
 			return err
@@ -388,8 +389,8 @@ func restore(ctx context.Context, tx store.Stores, ownerID string, f File) error
 		}
 		_, err := cs.CreateComponent(ctx, store.Component{
 			ID: c.ID, OwnerID: ownerID, Type: c.Type, Manufacturer: c.Manufacturer, Model: c.Model,
-			PartNumber: c.PartNumber, PurchasedAt: c.PurchasedAt, Dealer: c.Dealer, PriceCents: c.PriceCents,
-			Currency: c.Currency, MaxDistanceM: c.MaxDistanceM, ReplaceBy: c.ReplaceBy, URL: c.URL, Notes: c.Notes,
+			PartNumber: c.PartNumber, SerialNumber: c.SerialNumber, PurchasedAt: c.PurchasedAt, Dealer: c.Dealer,
+			PriceCents: c.PriceCents, Currency: c.Currency, MaxDistanceM: c.MaxDistanceM, ReplaceBy: c.ReplaceBy, URL: c.URL, Notes: c.Notes,
 			CreatedAt: c.CreatedAt,
 		})
 		if err != nil {

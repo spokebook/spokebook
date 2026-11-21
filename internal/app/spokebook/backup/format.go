@@ -121,6 +121,7 @@ type Bike struct {
 	Origin       string            `json:"origin,omitempty"`
 	PurchasedAt  *time.Time        `json:"purchased_at,omitempty"`
 	Dealer       string            `json:"dealer,omitempty"`
+	SerialNumber string            `json:"serial_number,omitempty"`
 	PriceCents   *int64            `json:"price_cents,omitempty"`
 	Currency     string            `json:"currency,omitempty"`
 	InServiceAt  *time.Time        `json:"in_service_at,omitempty"`
@@ -189,6 +190,7 @@ type Component struct {
 	Manufacturer  string         `json:"manufacturer,omitempty"`
 	Model         string         `json:"model,omitempty"`
 	PartNumber    string         `json:"part_number,omitempty"`
+	SerialNumber  string         `json:"serial_number,omitempty"`
 	PurchasedAt   *time.Time     `json:"purchased_at,omitempty"`
 	Dealer        string         `json:"dealer,omitempty"`
 	PriceCents    *int64         `json:"price_cents,omitempty"`

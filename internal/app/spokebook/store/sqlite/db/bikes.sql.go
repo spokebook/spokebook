@@ -11,27 +11,28 @@ import (
 )
 
 const createBike = `-- name: CreateBike :one
-INSERT INTO bikes (id, owner_id, name, type, notes, origin, purchased_at, dealer, price_cents,
-                   currency, in_service_at, in_service_m, features, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features
+INSERT INTO bikes (id, owner_id, name, type, notes, origin, purchased_at, dealer, serial_number,
+                   price_cents, currency, in_service_at, in_service_m, features, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features, serial_number
 `
 
 type CreateBikeParams struct {
-	ID          string
-	OwnerID     string
-	Name        string
-	Type        string
-	Notes       string
-	Origin      string
-	PurchasedAt sql.NullString
-	Dealer      string
-	PriceCents  sql.NullInt64
-	Currency    string
-	InServiceAt sql.NullString
-	InServiceM  sql.NullInt64
-	Features    string
-	CreatedAt   string
+	ID           string
+	OwnerID      string
+	Name         string
+	Type         string
+	Notes        string
+	Origin       string
+	PurchasedAt  sql.NullString
+	Dealer       string
+	SerialNumber string
+	PriceCents   sql.NullInt64
+	Currency     string
+	InServiceAt  sql.NullString
+	InServiceM   sql.NullInt64
+	Features     string
+	CreatedAt    string
 }
 
 func (q *Queries) CreateBike(ctx context.Context, arg CreateBikeParams) (Bike, error) {
@@ -44,6 +45,7 @@ func (q *Queries) CreateBike(ctx context.Context, arg CreateBikeParams) (Bike, e
 		arg.Origin,
 		arg.PurchasedAt,
 		arg.Dealer,
+		arg.SerialNumber,
 		arg.PriceCents,
 		arg.Currency,
 		arg.InServiceAt,
@@ -69,6 +71,7 @@ func (q *Queries) CreateBike(ctx context.Context, arg CreateBikeParams) (Bike, e
 		&i.InServiceAt,
 		&i.InServiceM,
 		&i.Features,
+		&i.SerialNumber,
 	)
 	return i, err
 }
@@ -91,7 +94,7 @@ func (q *Queries) DeleteBike(ctx context.Context, arg DeleteBikeParams) (int64, 
 }
 
 const getBike = `-- name: GetBike :one
-SELECT id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features FROM bikes WHERE owner_id = ? AND id = ?
+SELECT id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features, serial_number FROM bikes WHERE owner_id = ? AND id = ?
 `
 
 type GetBikeParams struct {
@@ -119,12 +122,13 @@ func (q *Queries) GetBike(ctx context.Context, arg GetBikeParams) (Bike, error) 
 		&i.InServiceAt,
 		&i.InServiceM,
 		&i.Features,
+		&i.SerialNumber,
 	)
 	return i, err
 }
 
 const listBikes = `-- name: ListBikes :many
-SELECT id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features FROM bikes WHERE owner_id = ? ORDER BY name
+SELECT id, owner_id, name, type, notes, created_at, retired_at, retire_reason, origin, purchased_at, dealer, price_cents, currency, in_service_at, in_service_m, features, serial_number FROM bikes WHERE owner_id = ? ORDER BY name
 `
 
 func (q *Queries) ListBikes(ctx context.Context, ownerID string) ([]Bike, error) {
@@ -153,6 +157,7 @@ func (q *Queries) ListBikes(ctx context.Context, ownerID string) ([]Bike, error)
 			&i.InServiceAt,
 			&i.InServiceM,
 			&i.Features,
+			&i.SerialNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -193,25 +198,26 @@ func (q *Queries) SetBikeRetired(ctx context.Context, arg SetBikeRetiredParams) 
 
 const updateBike = `-- name: UpdateBike :execrows
 UPDATE bikes
-SET name = ?, type = ?, notes = ?, origin = ?, purchased_at = ?, dealer = ?, price_cents = ?,
-    currency = ?, in_service_at = ?, in_service_m = ?, features = ?
+SET name = ?, type = ?, notes = ?, origin = ?, purchased_at = ?, dealer = ?, serial_number = ?,
+    price_cents = ?, currency = ?, in_service_at = ?, in_service_m = ?, features = ?
 WHERE owner_id = ? AND id = ?
 `
 
 type UpdateBikeParams struct {
-	Name        string
-	Type        string
-	Notes       string
-	Origin      string
-	PurchasedAt sql.NullString
-	Dealer      string
-	PriceCents  sql.NullInt64
-	Currency    string
-	InServiceAt sql.NullString
-	InServiceM  sql.NullInt64
-	Features    string
-	OwnerID     string
-	ID          string
+	Name         string
+	Type         string
+	Notes        string
+	Origin       string
+	PurchasedAt  sql.NullString
+	Dealer       string
+	SerialNumber string
+	PriceCents   sql.NullInt64
+	Currency     string
+	InServiceAt  sql.NullString
+	InServiceM   sql.NullInt64
+	Features     string
+	OwnerID      string
+	ID           string
 }
 
 func (q *Queries) UpdateBike(ctx context.Context, arg UpdateBikeParams) (int64, error) {
@@ -222,6 +228,7 @@ func (q *Queries) UpdateBike(ctx context.Context, arg UpdateBikeParams) (int64, 
 		arg.Origin,
 		arg.PurchasedAt,
 		arg.Dealer,
+		arg.SerialNumber,
 		arg.PriceCents,
 		arg.Currency,
 		arg.InServiceAt,

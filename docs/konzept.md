@@ -49,16 +49,18 @@ alle Formulare wie gewohnt. htmx läuft ohne Inline-Styles und ohne `eval`, pass
 
 ## Datenmodell (Kern)
 
-- **Bike**: Name, Typ, Kaufdaten, Notizen und eine Liste von **Maßen** (Werte der Art `info`, z.B.
-  Sattelhöhe, Stack, Reach). Sie dokumentieren Geometrie und Sitzposition und erscheinen nie in einer
+- **Bike**: Name, Typ, Seriennummer (z.B. Rahmennummer, optional), Kaufdaten, Notizen und eine Liste
+  von **Maßen** (Werte der Art `info`, z.B. Sattelhöhe, Stack, Reach). Sie dokumentieren Geometrie und Sitzposition und erscheinen nie in einer
   Wartung; Fahrwerkseinstellungen wie Gabeldruck und SAG sind Werte von Gabel und Dämpfer.
 - **km-Stand** (Zeitreihe pro Bike): Datum, km, Quelle (manuell, Import). Daraus wird die Laufleistung
   jeder Komponente berechnet. Ein km-Stand liegt nie vor der Inbetriebnahme des Rads oder unter dem
   Stand dabei. Manuelle km-Stände sind Anker; dazwischen zählen die importierten Fahrten (siehe
   „Import von Fahrten“).
-- **Komponente**: Typ (Kette, Kassette, Bremsbelag ...), Hersteller, Modell, Kaufdatum, Händler, Preis,
-  Währung, max. Laufleistung, Austauschdatum, Notizen und eine Liste von **Werten** (z.B. Drehmomente,
-  Verschleißgrenzen).
+- **Komponente**: Typ (Kette, Kassette, Bremsbelag ...), Hersteller, Modell, Artikelnummer,
+  Seriennummer (optional), Kaufdatum, Händler, Preis, Währung, max. Laufleistung, Austauschdatum, Notizen
+  und eine Liste von **Werten** (z.B. Drehmomente, Verschleißgrenzen). Beim Duplizieren und beim Ersetzen
+  durch eine neue Komponente werden die Angaben übernommen, aber nicht die Seriennummer (ein anderes
+  Teil) und beim Ersetzen auch nicht Kaufdatum und Austauschdatum.
 - **Komponententyp**: Standard-Typen mit fester ID (übersetzt) und eigene Typen. Ein Typ hat
   **Standardwerte**; eine Komponente überschreibt sie über den Schlüssel mit der Herstellerangabe.
 - **Wert**: Schlüssel, Bezeichnung, Art, von, bis, Einheit, Hinweis. Nur „von“ ist ein Minimum
