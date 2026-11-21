@@ -13,7 +13,7 @@ import (
 func TestBikeSerialNumber(t *testing.T) {
 	c := newClient(t)
 	_, _, body := c.do("GET", "/bikes/new", nil)
-	mustContain(t, body, "Seriennummer", `name="serial_number" autocomplete="off" value=""`)
+	mustContain(t, body, "Rahmennummer", `name="serial_number" autocomplete="off" value=""`)
 
 	// A validation error keeps the submitted serial number.
 	status, _, body := c.do("POST", "/bikes", url.Values{"name": {""}, "serial_number": {"WTU123"}})
@@ -27,7 +27,7 @@ func TestBikeSerialNumber(t *testing.T) {
 	if status != http.StatusOK || !strings.HasPrefix(bikePath, "/bikes/") {
 		t.Fatalf("create: %d %s", status, bikePath)
 	}
-	mustContain(t, body, "<dt>Seriennummer</dt><dd>WTU 123 &lt;b&gt;</dd>")
+	mustContain(t, body, "<dt>Rahmennummer</dt><dd>WTU 123 &lt;b&gt;</dd>")
 	id := strings.TrimPrefix(bikePath, "/bikes/")
 	b, err := c.st.Bikes().GetBike(context.Background(), auth.FirstUserID, id)
 	if err != nil || b.SerialNumber != "WTU 123 <b>" {
@@ -38,7 +38,7 @@ func TestBikeSerialNumber(t *testing.T) {
 	_, _, body = c.do("GET", bikePath+"/edit", nil)
 	mustContain(t, body, `name="serial_number" autocomplete="off" value="WTU 123 &lt;b&gt;"`)
 	_, _, body = c.do("POST", bikePath, url.Values{"name": {"Gravel"}, "serial_number": {"WTU999"}})
-	mustContain(t, body, "<dt>Seriennummer</dt><dd>WTU999</dd>")
+	mustContain(t, body, "<dt>Rahmennummer</dt><dd>WTU999</dd>")
 	// A failed edit keeps the newly submitted value, not the stored one.
 	status, _, body = c.do("POST", bikePath, url.Values{"name": {"Gravel"}, "origin": {"stolen"}, "serial_number": {"NEW1"}})
 	if status != http.StatusUnprocessableEntity {
@@ -49,20 +49,20 @@ func TestBikeSerialNumber(t *testing.T) {
 	mustContain(t, body, "<dd>WTU999</dd>")
 
 	_, _, body = c.do("POST", bikePath, url.Values{"name": {"Gravel"}, "serial_number": {"   "}})
-	mustNotContain(t, body, "Seriennummer", "WTU999")
+	mustNotContain(t, body, "Rahmennummer", "WTU999")
 	if b, _ := c.st.Bikes().GetBike(context.Background(), auth.FirstUserID, id); b.SerialNumber != "" {
 		t.Errorf("not cleared: %q", b.SerialNumber)
 	}
 
 	// Without a serial number, the bike page has no such entry.
 	_, _, body = c.do("POST", "/bikes", url.Values{"name": {"Road"}})
-	mustNotContain(t, body, "Seriennummer")
+	mustNotContain(t, body, "Rahmennummer")
 
 	// English label.
 	c.lang = "en"
 	c.do("POST", bikePath, url.Values{"name": {"Gravel"}, "serial_number": {"EN1"}})
 	_, _, body = c.do("GET", bikePath, nil)
-	mustContain(t, body, "<dt>Serial number</dt><dd>EN1</dd>")
+	mustContain(t, body, "<dt>Frame number</dt><dd>EN1</dd>")
 }
 
 func TestComponentSerialNumber(t *testing.T) {

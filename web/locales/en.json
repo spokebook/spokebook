@@ -93,6 +93,7 @@
   "bike.field.in_service_at": "Date",
   "bike.field.in_service_km": "Odometer at that time (km)",
   "bike.field.origin": "Acquired",
+  "bike.field.serial_number": "Frame number",
   "bike.in_service": "In service since",
   "bike.in_service.hint": "0 km for new and self-built bikes, the taken-over odometer for used ones. Components can be installed before the first ride.",
   "bike.odometer": "Odometer",

@@ -28,7 +28,7 @@
   <summary>{{t "bike.facts"}}</summary>
   <dl>
     {{with $b.Type}}<dt>{{t "bikes.field.type"}}</dt><dd>{{.}}</dd>{{end}}
-    {{with $b.SerialNumber}}<dt>{{t "component.field.serial_number"}}</dt><dd>{{.}}</dd>{{end}}
+    {{with $b.SerialNumber}}<dt>{{t "bike.field.serial_number"}}</dt><dd>{{.}}</dd>{{end}}
     {{with $b.Origin}}<dt>{{t "bike.field.origin"}}</dt><dd>{{t (print "bike.origin." .)}}</dd>{{end}}
     {{with $b.PurchasedAt}}<dt>{{t "component.field.purchased_at"}}</dt><dd>{{date .}}</dd>{{end}}
     {{with $b.Dealer}}<dt>{{t "component.field.dealer"}}</dt><dd>{{.}}</dd>{{end}}

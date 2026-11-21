@@ -93,6 +93,7 @@
   "bike.field.in_service_at": "Datum",
   "bike.field.in_service_km": "Kilometerstand dabei (km)",
   "bike.field.origin": "Herkunft",
+  "bike.field.serial_number": "Rahmennummer",
   "bike.in_service": "Im Einsatz seit",
   "bike.in_service.hint": "0 km bei neuen und selbst aufgebauten Rädern, bei gebrauchten der übernommene Stand. Komponenten lassen sich schon vor der ersten Fahrt einbauen.",
   "bike.odometer": "Kilometerstand",
