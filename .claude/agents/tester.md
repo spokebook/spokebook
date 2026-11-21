@@ -1,7 +1,7 @@
 ---
 name: tester
 description: Writes and runs tests for Spokebook changes and checks the UI at phone width. Use it after (or alongside) the developer with the acceptance criteria; it changes only test files and reports failures instead of fixing production code.
-model: opus
+model: sonnet
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
