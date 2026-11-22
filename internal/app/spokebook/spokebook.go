@@ -10,9 +10,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/spokebook/spokebook/internal/app/spokebook/notify"
+	"github.com/spokebook/spokebook/internal/app/spokebook/notify/ntfy"
 	"github.com/spokebook/spokebook/internal/app/spokebook/rides/garmin"
 	"github.com/spokebook/spokebook/internal/app/spokebook/secret"
 	"github.com/spokebook/spokebook/internal/app/spokebook/server"
@@ -25,6 +28,10 @@ func Run(ctx context.Context, log *slog.Logger) error {
 	dbPath := env("APP_DB_PATH", "data/dev.sqlite")
 	baseURL := strings.TrimSuffix(env("APP_BASE_URL", "http://localhost:8080"), "/")
 	proxies, err := server.ParseTrustedProxies(os.Getenv("APP_TRUSTED_PROXIES"))
+	if err != nil {
+		return err
+	}
+	allowPrivate, err := envBool("APP_NOTIFY_ALLOW_PRIVATE")
 	if err != nil {
 		return err
 	}
@@ -50,11 +57,15 @@ func Run(ctx context.Context, log *slog.Logger) error {
 	}
 	syncer := garmin.NewSyncer(st, box, garmin.NewClient(garmin.BaseURL), log)
 	go syncer.Run(ctx)
+	notifier := notify.New(st, box, notify.Options{
+		BaseURL: baseURL, Kinds: []notify.Kind{ntfy.Kind(ntfy.NewClient(allowPrivate))}, Log: log,
+	})
+	go notifier.Run(ctx)
 
 	version := AppVersion()
 	app, err := server.New(ctx, st, log, server.Config{
 		BaseURL: baseURL, TrustedProxies: proxies, Version: version, SourceURL: SourceURL,
-		Garmin: syncer,
+		Garmin: syncer, Notify: notifier,
 	})
 	if err != nil {
 		return err
@@ -86,6 +97,20 @@ func NewLogger(w io.Writer) (*slog.Logger, error) {
 		return nil, fmt.Errorf("APP_LOG_LEVEL: %w", err)
 	}
 	return slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{Level: level})), nil
+}
+
+// envBool reads a boolean variable (true or false, 1 or 0, ...); unset
+// is false.
+func envBool(key string) (bool, error) {
+	v := os.Getenv(key)
+	if v == "" {
+		return false, nil
+	}
+	b, err := strconv.ParseBool(v)
+	if err != nil {
+		return false, fmt.Errorf("%s: invalid value %q, want true or false", key, v)
+	}
+	return b, nil
 }
 
 func env(key, def string) string {

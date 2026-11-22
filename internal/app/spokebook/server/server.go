@@ -21,6 +21,7 @@ import (
 	"github.com/spokebook/spokebook/internal/app/spokebook/auth"
 	"github.com/spokebook/spokebook/internal/app/spokebook/catalog"
 	"github.com/spokebook/spokebook/internal/app/spokebook/i18n"
+	"github.com/spokebook/spokebook/internal/app/spokebook/notify"
 	"github.com/spokebook/spokebook/internal/app/spokebook/rides/garmin"
 	"github.com/spokebook/spokebook/internal/app/spokebook/store"
 	"github.com/spokebook/spokebook/web"
@@ -44,6 +45,9 @@ type Config struct {
 	SourceURL string
 	// Garmin fetches rides from Garmin Connect; nil disables it.
 	Garmin *garmin.Syncer
+	// Notify manages notification channels and settings; nil disables
+	// notifications.
+	Notify *notify.Service
 }
 
 type Server struct {
@@ -60,6 +64,7 @@ type Server struct {
 	version        string
 	sourceURL      string
 	garmin         *garmin.Syncer
+	notify         *notify.Service
 }
 
 // New creates the server and adds new built-in component types and steps
@@ -97,6 +102,7 @@ func New(ctx context.Context, st store.Store, log *slog.Logger, cfg Config) (*Se
 		store: st, i18n: bundle, pages: pages, log: log, setup: setup, passkeys: passkeys,
 		secure: strings.HasPrefix(cfg.BaseURL, "https://"), loginLimit: newLimiter(10, 6*time.Second),
 		trustedProxies: cfg.TrustedProxies, version: cfg.Version, sourceURL: cfg.SourceURL, garmin: cmp.Or(cfg.Garmin, garmin.NewSyncer(st, nil, nil, log)),
+		notify: cmp.Or(cfg.Notify, notify.New(st, nil, notify.Options{BaseURL: cfg.BaseURL, Bundle: bundle, Log: log})),
 	}, nil
 }
 
@@ -278,6 +284,15 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /account/backup", s.exportBackup)
 	mux.HandleFunc("GET /account/backup/import", s.importBackupForm)
 	mux.HandleFunc("POST /account/backup/import", s.importBackup)
+	mux.HandleFunc("GET /notifications", s.notificationsPage)
+	mux.HandleFunc("POST /notifications/settings", s.saveNotificationSettings)
+	mux.HandleFunc("GET /notifications/channels/new", s.newChannel)
+	mux.HandleFunc("POST /notifications/channels", s.createChannel)
+	mux.HandleFunc("GET /notifications/channels/{id}/edit", s.editChannel)
+	mux.HandleFunc("POST /notifications/channels/{id}", s.updateChannel)
+	mux.HandleFunc("POST /notifications/channels/{id}/test", s.testChannel)
+	mux.HandleFunc("GET /notifications/channels/{id}/delete", s.confirmDeleteChannel)
+	mux.HandleFunc("POST /notifications/channels/{id}/delete", s.deleteChannel)
 	mux.HandleFunc("GET /attachments/{id}", s.attachmentFile)
 	mux.HandleFunc("GET /attachments/{id}/thumb", s.attachmentThumb)
 	mux.HandleFunc("GET /attachments/{id}/edit", s.editAttachment)
@@ -417,7 +432,7 @@ func section(path string) string {
 	if strings.HasPrefix(path, "/shopping") {
 		return "shopping"
 	}
-	if strings.HasPrefix(path, "/account") {
+	if strings.HasPrefix(path, "/account") || strings.HasPrefix(path, "/notifications") {
 		return "account"
 	}
 	return "bikes"

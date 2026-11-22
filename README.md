@@ -33,6 +33,8 @@ history stays correct even if you change the catalog later.
   mileage import from GPX/FIT/TCX files and Garmin Connect
 - **v0.3**: more modules switched on by bike features (hydraulic brakes, hub gear, belt drive,
   electronic shifting) and smaller improvements
+- **v0.4**: notifications over interchangeable channels (first ntfy) about due maintenance, worn
+  components, Garmin errors, rides without bike and forgotten open maintenances
 - **Later**: own modules in the UI, OIDC, CSV export, inviting more users, a public API, sharing
   components you entered (type, values such as wear limits and torques) with other users
 
@@ -64,7 +66,8 @@ services:
     environment:
       APP_BASE_URL: https://bikes.example.com
       APP_TRUSTED_PROXIES: 192.168.1.10   # address of the reverse proxy as the container sees it
-      # APP_SECRET_KEY: ...    # needed for Garmin Connect; create one with: openssl rand -base64 32
+      # APP_SECRET_KEY: ...    # needed for Garmin Connect and notifications; create one with: openssl rand -base64 32
+      # APP_NOTIFY_ALLOW_PRIVATE: "true"   # only for an ntfy server in your own network
     volumes:
       - ./data:/data
 ```
@@ -89,7 +92,8 @@ All settings are environment variables. The defaults suit development; in the im
 | `APP_BASE_URL` | `http://localhost:8080` | Address users open. Passkeys are bound to its host; with `https://`, cookies are `Secure` and HSTS is sent |
 | `APP_TRUSTED_PROXIES` | (none) | Comma-separated IP addresses or CIDR ranges of reverse proxies whose `X-Forwarded-For` header is believed, e.g. `192.168.1.10` or `172.16.0.0/12` |
 | `APP_LOG_LEVEL` | `info` | `debug`, `info`, `warn` or `error`; `debug` logs every request with method, path, status, duration and client address |
-| `APP_SECRET_KEY` | (none) | At least 32 characters, e.g. from `openssl rand -base64 32`. Encrypts the credentials of ride sources such as the Garmin API key; without it, Garmin Connect can't be connected. If it changes, the stored keys must be entered again |
+| `APP_SECRET_KEY` | (none) | At least 32 characters, e.g. from `openssl rand -base64 32`. Encrypts the credentials of ride sources such as the Garmin API key and the settings of notification channels; without it, Garmin Connect can't be connected and notifications are off. If it changes, the stored keys and channel settings must be entered again |
+| `APP_NOTIFY_ALLOW_PRIVATE` | `false` | `true` lets notification channels reach servers at loopback and private addresses (`127.0.0.0/8`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `100.64.0.0/10`, `fc00::/7`, local NAT64 `64:ff9b:1::/48`), e.g. a self-hosted ntfy server in your home network. Link-local, site-local, multicast, broadcast and unspecified addresses, `192.0.0.0/24` `0.0.0.0/8`, the cloud metadata addresses (`169.254.169.254`, `fd00:ec2::254`, `fd20:ce::254`, `fd00:c1::a9fe:a9fe`, `100.100.100.200`, `168.63.129.16`) and the IPv6 ranges that tunnel or translate to IPv4 (6to4 `2002::/16`, Teredo `2001::/32`, SIIT `::ffff:0:0:0/96`) are never allowed; NAT64 (`64:ff9b::/96`) and IPv4-compatible addresses are judged by their embedded IPv4 address. A NAT64 prefix chosen by your network operator is not recognized. Any other value than `true`/`false` (or `1`/`0`) stops the start |
 
 ### First login
 
@@ -109,8 +113,9 @@ Under *Account → Backup*, **Export** downloads all your data (bikes, odometer 
 component types, catalog, intervals, maintenances, rides and their bike mappings, photos and documents,
 shopping list) as a ZIP file with a versioned JSON file and the attachments. **Import** restores such a
 file: it replaces all of your data in one transaction, so a damaged file changes nothing. Accounts,
-passwords, passkeys and ride source credentials (Garmin API key) are not part of the backup and stay as
-they are. A backup from an older version of Spokebook can be imported into a newer one, including the
+passwords, passkeys, ride source credentials (Garmin API key) and notification channels are not part
+of the backup and stay as they are; the notification settings (events, threshold, days, language) are
+included. A backup from an older version of Spokebook can be imported into a newer one, including the
 plain JSON files of the first backup format.
 
 To back up the whole server including accounts, copy the database in `/data` while the container is
@@ -125,6 +130,23 @@ an uploaded file; the Garmin gear chosen for a ride decides the bike. To be gent
 limit, requests are at least 2 seconds apart and a run downloads at most 100 activities; a longer
 history continues hourly until it is complete, then fetching is daily again. The key is stored encrypted with `APP_SECRET_KEY` and is not part of the
 backup. Garmin keys expire after 30 days to one year; the page tells you when a new one is needed.
+
+### Notifications
+
+Under *Account → Notifications*, add a channel to be told when something needs doing; it needs
+`APP_SECRET_KEY`, which encrypts the channel settings. The first kind of channel is
+[ntfy](https://ntfy.sh): enter the server (default `https://ntfy.sh`), a topic and, for a protected
+topic, an access token, then subscribe to the topic in the ntfy app. On a public server anyone who
+knows the topic can read the messages, so choose a long, random one. A self-hosted ntfy server in your
+own network (a loopback or private address) is only reached if the server runs with
+`APP_NOTIFY_ALLOW_PRIVATE=true`. *Test* sends a test message; the last error is shown at the channel.
+
+Once a day Spokebook checks your data and notifies you about the chosen events: due maintenance,
+worn components (from 80 % of the maximum distance; a replace-by date when it is reached), open
+maintenances older than a number of days, rides without bike and a Garmin API key that needs
+replacing. You choose whether "due soon" counts or only "overdue". Each state is notified once: again
+only when it gets worse (soon to overdue, more rides without bike) or when it comes back after being
+resolved. The items of a bike come in one message with a link to it.
 
 ## Development
 

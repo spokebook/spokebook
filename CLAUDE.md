@@ -81,6 +81,9 @@ Following [golang-standards/project-layout](https://github.com/golang-standards/
   rows, transactions, computed values such as mileage, wear and due dates); used by handlers and later by imports
 - `internal/app/spokebook/rides/garmin`: fetches rides from Garmin Connect (Personal API, daily job)
 - `internal/app/spokebook/secret`: seals credentials with `APP_SECRET_KEY`
+- `internal/app/spokebook/notify`: notifications: interchangeable channel kinds, the checker of due
+  items and the daily runner; channels and settings of an owner
+- `internal/app/spokebook/notify/ntfy`: the ntfy channel kind (configuration fields, validation, sending)
 - `internal/app/spokebook/attachments`: checks uploaded photos and PDFs (photos shrunk, turned by EXIF
   and re-encoded as JPEG without metadata) and links them to bikes and components
 - `internal/app/spokebook/rides/parse`: reads rides (start, end, distance, bike) from FIT, GPX and TCX
@@ -105,7 +108,9 @@ No `pkg/`, the app is not a library.
   (`data/dev.sqlite`), `APP_BASE_URL` (`http://localhost:8080`, for passkeys and secure cookies), `APP_TRUSTED_PROXIES`
   (reverse proxies whose `X-Forwarded-For` is believed, for the login rate limit), `APP_LOG_LEVEL`
   (`info`; `debug` logs every request), `APP_SECRET_KEY` (at least 32 characters; encrypts credentials
-  of ride sources such as the Garmin API key; without it Garmin Connect is disabled).
+  of ride sources such as the Garmin API key and the settings of notification channels; without it Garmin
+  Connect and notifications are disabled), `APP_NOTIFY_ALLOW_PRIVATE` (`false`; `true` lets notification
+  channels reach loopback and private addresses, e.g. a self-hosted ntfy).
 - Without an account, the server logs a setup link with a one-time token at startup.
 - Always open the app via `http://localhost:8080` (not 127.0.0.1), otherwise passkeys won't work.
 - `data/` holds local databases and is not checked in.

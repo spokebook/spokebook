@@ -1,0 +1,81 @@
+{{define "title"}}{{t "notify.title"}}{{end}}
+
+{{define "content"}}
+<nav aria-label="breadcrumb"><ul><li><a href="/account">{{t "account.title"}}</a></li><li>{{t "notify.title"}}</li></ul></nav>
+<div class="page-head">
+  <h1>{{t "notify.title"}}</h1>
+  {{if and .Enabled .Kinds (not .Full)}}<div class="actions"><a href="/notifications/channels/new" role="button">+ {{t "notify.channel.new"}}</a></div>{{end}}
+</div>
+{{if .Saved}}<p role="status">{{t "notify.settings.saved"}}</p>{{end}}
+{{with .Tested}}{{if $.TestError}}<p role="alert">{{.}}: {{t "notify.channel.test_failed" (t (print "notify.channel_error." $.TestError))}}</p>{{else}}<p role="status">{{.}}: {{t "notify.channel.test_sent"}}</p>{{end}}{{end}}
+{{if not .Enabled}}<p role="alert">{{t "notify.disabled"}}</p>{{end}}
+<p>{{t "notify.intro"}}</p>
+
+{{if or .Enabled .Channels}}
+<section>
+  <h2>{{t "notify.channels"}}</h2>
+  {{if .Channels}}
+  <div class="overflow-auto">
+  <table>
+    <thead>
+      <tr><th>{{t "notify.channel.col.name"}}</th><th>{{t "notify.channel.col.kind"}}</th><th>{{t "notify.channel.col.status"}}</th><th>{{t "notify.channel.col.last_sent"}}</th><th></th>{{if .Enabled}}<th></th>{{end}}</tr>
+    </thead>
+    <tbody>
+      {{range .Channels}}
+      <tr>
+        <td>{{if $.Enabled}}<a href="/notifications/channels/{{.ID}}/edit">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td>
+        <td data-label="{{t "notify.channel.col.kind"}}">{{t (print "notify.kind." .Kind)}}</td>
+        <td data-label="{{t "notify.channel.col.status"}}">
+          {{if .Enabled}}<span class="badge done">{{t "notify.channel.enabled"}}</span>{{else}}<span class="badge open">{{t "notify.channel.disabled"}}</span>{{end}}
+          {{if .Broken}}<br><small class="alert">{{t "notify.channel.broken"}}</small>{{else if .LastError}}<br><small class="alert">{{t (print "notify.channel_error." .LastError)}}</small>{{end}}
+        </td>
+        <td data-label="{{t "notify.channel.col.last_sent"}}">{{or .LastSent (t "notify.channel.never")}}</td>
+        {{if $.Enabled}}
+        <td class="row-action"><form method="post" action="/notifications/channels/{{.ID}}/test"><button type="submit" class="outline">{{t "notify.channel.test"}}</button></form></td>
+        <td class="row-action"><a href="/notifications/channels/{{.ID}}/edit" role="button" class="outline">{{t "action.edit"}}</a></td>
+        {{else}}
+        <td class="row-action"><a href="/notifications/channels/{{.ID}}/delete" role="button" class="outline danger">{{t "action.delete"}}</a></td>
+        {{end}}
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  </div>
+  {{if and .Enabled .Full}}<p><small>{{t "notify.error.max_channels" .MaxChannels}}</small></p>{{end}}
+  {{else}}
+  <p>{{t "notify.channels.empty"}}</p>
+  {{end}}
+</section>
+{{end}}
+
+<section>
+  <h2>{{t "notify.settings"}}</h2>
+  <form method="post" action="/notifications/settings">
+    <fieldset>
+      <legend>{{t "notify.field.events"}}</legend>
+      {{range .Events}}<label><input type="checkbox" name="event" value="{{.}}"{{if has (index $.Form "event") .}} checked{{end}}> {{t (print "notify.event." .)}}</label>{{end}}
+    </fieldset>
+    {{$err := .FieldError}}
+    <fieldset>
+      <legend>{{t "notify.field.threshold"}}<span class="req" aria-hidden="true">*</span></legend>
+      {{range .Thresholds}}<label><input type="radio" name="threshold" value="{{.}}"{{if eq . ($.Form.Get "threshold")}} checked{{end}} required{{if eq $err.Field "threshold"}} aria-invalid="true" aria-describedby="threshold-error"{{end}}> {{t (print "notify.threshold." .)}}</label>{{end}}
+      {{if eq $err.Field "threshold"}}<small id="threshold-error" class="alert">{{$err.Msg}}</small>{{end}}
+    </fieldset>
+    <div class="grid">
+      <label>{{t "notify.field.open_days"}}<span class="req" aria-hidden="true">*</span>
+        <input type="number" name="open_days" value="{{.Form.Get "open_days"}}" min="1" max="{{.MaxOpenDays}}" step="1" inputmode="numeric" required{{if eq $err.Field "open_days"}} aria-invalid="true" aria-describedby="open_days-error"{{end}}>
+        {{if eq $err.Field "open_days"}}<small id="open_days-error" class="alert">{{$err.Msg}}</small>{{end}}
+        <small>{{t "notify.open_days_hint"}}</small>
+      </label>
+      <label>{{t "notify.field.language"}}<span class="req" aria-hidden="true">*</span>
+        <select name="language" required{{if eq $err.Field "language"}} aria-invalid="true" aria-describedby="language-error"{{end}}>
+          {{range .Languages}}<option value="{{.}}"{{if eq . ($.Form.Get "language")}} selected{{end}}>{{t (print "notify.language." .)}}</option>{{end}}
+        </select>
+        {{if eq $err.Field "language"}}<small id="language-error" class="alert">{{$err.Msg}}</small>{{end}}
+      </label>
+    </div>
+    <p><small>{{t "notify.schedule"}} {{with .LastRun}}{{t "notify.last_run" .}}{{else}}{{t "notify.never"}}{{end}}</small></p>
+    <button type="submit">{{t "action.save"}}</button>
+  </form>
+</section>
+{{end}}

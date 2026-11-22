@@ -105,24 +105,9 @@ func (p phaseView) LevelCounts() []levelCount {
 	return out
 }
 
-// builtinTexts returns title and instructions of a step, translated for a
-// built-in step (builtinID set) while they are empty.
-func builtinTexts(l *i18n.Localizer, builtinID, title, instructions string) (string, string) {
-	if builtinID == "" {
-		return title, instructions
-	}
-	if title == "" {
-		title = l.T("catalog." + builtinID + ".title")
-	}
-	if instructions == "" {
-		instructions = l.T("catalog." + builtinID + ".instructions")
-	}
-	return title, instructions
-}
-
-// localizeStep fills in the texts of a built-in step, see builtinTexts.
+// localizeStep fills in the texts of a built-in step, see catalog.BuiltinTexts.
 func localizeStep(l *i18n.Localizer, st *store.Step) {
-	st.Title, st.Instructions = builtinTexts(l, st.BuiltinID, st.Title, st.Instructions)
+	st.Title, st.Instructions = catalog.BuiltinTexts(l, st.BuiltinID, st.Title, st.Instructions)
 }
 
 // localizeSteps calls localizeStep on each step.
@@ -555,7 +540,7 @@ func (s *Server) updateStep(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Unchanged texts of a built-in step stay translated.
-	if title, instructions := builtinTexts(l, st.BuiltinID, "", ""); st.BuiltinID != "" {
+	if title, instructions := catalog.BuiltinTexts(l, st.BuiltinID, "", ""); st.BuiltinID != "" {
 		if st.Title == title {
 			st.Title = ""
 		}

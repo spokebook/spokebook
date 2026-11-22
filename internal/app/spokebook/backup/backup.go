@@ -16,6 +16,7 @@ import (
 	"github.com/spokebook/spokebook/internal/app/spokebook/attachments"
 	"github.com/spokebook/spokebook/internal/app/spokebook/catalog"
 	"github.com/spokebook/spokebook/internal/app/spokebook/components"
+	"github.com/spokebook/spokebook/internal/app/spokebook/notify"
 	"github.com/spokebook/spokebook/internal/app/spokebook/store"
 	"github.com/spokebook/spokebook/internal/app/spokebook/values"
 )
@@ -165,6 +166,15 @@ func Export(ctx context.Context, st store.Store, ownerID string) (File, error) {
 	for _, i := range items {
 		f.ShoppingItems = append(f.ShoppingItems, ShoppingItem{ID: i.ID, Text: i.Text, BoughtAt: i.BoughtAt, CreatedAt: i.CreatedAt})
 	}
+	ns, err := st.Notifications().GetNotificationSettings(ctx, ownerID)
+	switch {
+	case err == nil:
+		f.Notifications = &NotificationSettings{
+			Events: ns.Events, Threshold: ns.Threshold, OpenDays: ns.OpenDays, Language: ns.Language,
+		}
+	case !errors.Is(err, store.ErrNotFound):
+		return File{}, err
+	}
 	files, err := st.Attachments().ListAttachments(ctx, ownerID)
 	if err != nil {
 		return File{}, err
@@ -294,11 +304,22 @@ func (a Archive) open(name string, limit int64) ([]byte, error) {
 }
 
 // Import replaces all data of the owner with the backup in one
-// transaction; on error nothing changes. The owner's account stays. Built-in
-// types and steps missing from the backup are added afterwards.
+// transaction; on error nothing changes. The owner's account, ride sources
+// and notification channels stay, and so do the notification settings if
+// the backup has none; the notification states go, so current conditions
+// are notified fresh. Built-in types and steps missing from the backup
+// are added afterwards.
 func Import(ctx context.Context, st store.Store, ownerID string, a Archive) error {
+	// No notification check may store states of the replaced data.
+	unlock := notify.LockOwner(ownerID)
+	defer unlock()
 	err := st.WithTx(ctx, func(tx store.Stores) error {
 		if err := tx.Users().DeleteOwnerData(ctx, ownerID); err != nil {
+			return err
+		}
+		// The states belong to the replaced data; the conditions of the
+		// imported data are notified fresh.
+		if err := tx.Notifications().DeleteNotificationStates(ctx, ownerID); err != nil {
 			return err
 		}
 		if err := restore(ctx, tx, ownerID, a.File); err != nil {
@@ -524,6 +545,24 @@ func restore(ctx context.Context, tx store.Stores, ownerID string, f File) error
 			ID: i.ID, OwnerID: ownerID, Text: i.Text, BoughtAt: i.BoughtAt, CreatedAt: i.CreatedAt,
 		})
 		if err != nil {
+			return err
+		}
+	}
+
+	if n := f.Notifications; n != nil {
+		// A backup of a newer version may have a language this one has
+		// no catalog for.
+		lang := n.Language
+		if !slices.Contains(notify.Languages(), lang) {
+			lang = notify.DefaultLanguage
+		}
+		ns, err := notify.CheckSettings(store.NotificationSettings{
+			OwnerID: ownerID, Events: n.Events, Threshold: n.Threshold, OpenDays: n.OpenDays, Language: lang,
+		})
+		if err != nil {
+			return ErrInvalid
+		}
+		if err := tx.Notifications().SaveNotificationSettings(ctx, ns); err != nil {
 			return err
 		}
 	}

@@ -51,6 +51,8 @@ func (s stores) Maintenances() store.MaintenanceStore { return maintenanceStore(
 func (s stores) Attachments() store.AttachmentStore   { return attachmentStore(s) }
 func (s stores) Shopping() store.ShoppingStore        { return shoppingStore(s) }
 
+func (s stores) Notifications() store.NotificationStore { return notificationStore(s) }
+
 // Open opens the database at path (":memory:" for tests) and runs the
 // migrations.
 func Open(ctx context.Context, path string) (*Store, error) {

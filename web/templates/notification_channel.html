@@ -1,0 +1,44 @@
+{{define "title"}}{{with .Channel.Channel}}{{.Name}}{{else}}{{t "notify.channel.new"}}{{end}}{{end}}
+
+{{define "content"}}
+{{with .Channel}}
+<nav aria-label="breadcrumb"><ul><li><a href="/account">{{t "account.title"}}</a></li><li><a href="/notifications">{{t "notify.title"}}</a></li><li>{{with .Channel}}{{.Name}}{{else}}{{t "action.new"}}{{end}}</li></ul></nav>
+<h1>{{if .Channel}}{{t "notify.channel.edit"}}{{else}}{{t "notify.channel.new"}}{{end}}</h1>
+{{if not .Kind.ID}}
+<p>{{t "notify.channel.field.kind"}}</p>
+<div class="actions">
+  {{range $.Kinds}}<a href="/notifications/channels/new?kind={{.ID}}" role="button" class="outline">{{t (print "notify.kind." .ID)}}</a>{{end}}
+</div>
+{{else}}
+<p>{{t "notify.channel.field.kind"}}: <strong>{{t (print "notify.kind." .Kind.ID)}}</strong></p>
+{{if and .Channel .Channel.Broken}}<p role="alert">{{t "notify.channel.broken"}}</p>{{end}}
+{{with .Error}}<p role="alert">{{.}}</p>{{end}}
+<form method="post" action="{{with .Channel}}/notifications/channels/{{.ID}}{{else}}/notifications/channels{{end}}">
+  {{if not .Channel}}<input type="hidden" name="kind" value="{{.Kind.ID}}">{{end}}
+  <label>{{t "notify.channel.field.name"}}<span class="req" aria-hidden="true">*</span>
+    <input name="name" value="{{.Name}}" maxlength="100" required{{if .NameError}} aria-invalid="true" aria-describedby="name-error"{{end}}>
+    {{with .NameError}}<small id="name-error" class="alert">{{.}}</small>{{end}}
+    <small>{{t "notify.channel.name_hint"}}</small>
+  </label>
+  {{range .Fields}}{{$id := print "config-" .Name "-error"}}
+  <label>{{t .Label}}{{if .Required}}<span class="req" aria-hidden="true">*</span>{{end}}
+    <input type="{{if .Secret}}password{{else}}{{.Type}}{{end}}" name="config.{{.Name}}" value="{{.Value}}"
+      {{- if .Secret}} autocomplete="new-password"{{else}} autocomplete="off"{{end}}
+      {{- if and .Required (not .SecretSet)}} required{{end}}
+      {{- if .Error}} aria-invalid="true" aria-describedby="{{$id}}"{{end}}
+      {{- if .Default}} placeholder="{{.Default}}"{{end}}>
+    {{with .Error}}<small id="{{$id}}" class="alert">{{.}}</small>{{end}}
+    {{if or .Hint .SecretSet}}<small>{{with .Hint}}{{t .}}{{end}}{{if .SecretSet}} {{t "notify.field.keep_secret"}}{{end}}</small>{{end}}
+  </label>
+  {{if .SecretSet}}<label><input type="checkbox" name="clear" value="{{.Name}}"{{if .Clear}} checked{{end}}> {{t "notify.field.clear_secret"}}</label>{{end}}
+  {{end}}
+  <fieldset>
+    <legend>{{t "notify.channel.col.status"}}</legend>
+    <label><input type="checkbox" name="enabled" value="1"{{if .Enabled}} checked{{end}}> {{t "notify.channel.field.enabled"}}</label>
+  </fieldset>
+  <button type="submit">{{t "action.save"}}</button>
+</form>
+{{with .Channel}}<div class="actions end"><a href="/notifications/channels/{{.ID}}/delete" role="button" class="outline danger">{{t "notify.channel.delete"}}</a></div>{{end}}
+{{end}}
+{{end}}
+{{end}}

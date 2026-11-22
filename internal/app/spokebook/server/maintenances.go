@@ -331,7 +331,7 @@ func (s *Server) renderMaintenance(w http.ResponseWriter, r *http.Request, statu
 	l := i18n.FromContext(ctx)
 	for i := range m.Steps {
 		st := &m.Steps[i]
-		st.Title, st.Instructions = builtinTexts(l, st.BuiltinID, st.Title, st.Instructions)
+		st.Title, st.Instructions = catalog.BuiltinTexts(l, st.BuiltinID, st.Title, st.Instructions)
 	}
 	steps := make([]maintenanceStepView, 0, len(m.Steps))
 	// With htmx, saving also swaps the follow-ups of the steps that have

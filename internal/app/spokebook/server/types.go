@@ -91,7 +91,7 @@ func (s *Server) renderTypeValues(w http.ResponseWriter, r *http.Request, status
 		s.fail(w, r, err)
 		return
 	}
-	data["Type"] = typeOption{ID: t.ID, Name: typeName(i18n.FromContext(ctx), t)}
+	data["Type"] = typeOption{ID: t.ID, Name: components.TypeName(i18n.FromContext(ctx), t)}
 	data["Error"] = errMsg
 	if form != nil {
 		data["Form"] = form

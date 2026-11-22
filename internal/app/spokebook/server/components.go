@@ -129,13 +129,6 @@ type typeOption struct {
 	Custom string
 }
 
-func typeName(l *i18n.Localizer, t store.ComponentType) string {
-	if t.Name != "" {
-		return t.Name
-	}
-	return l.T("component.type." + t.ID)
-}
-
 // componentTypes returns the display names of all types (including hidden
 // ones, for existing components) and the active types sorted by name.
 func (s *Server) componentTypes(ctx context.Context) (map[string]string, []typeOption, error) {
@@ -147,7 +140,7 @@ func (s *Server) componentTypes(ctx context.Context) (map[string]string, []typeO
 	names := make(map[string]string, len(types))
 	var active []typeOption
 	for _, t := range types {
-		names[t.ID] = typeName(l, t)
+		names[t.ID] = components.TypeName(l, t)
 		if !t.Hidden {
 			active = append(active, typeOption{ID: t.ID, Name: names[t.ID], Builtin: components.IsBuiltin(t.ID), Custom: t.Name})
 		}

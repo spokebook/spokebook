@@ -193,6 +193,34 @@ type MaintenanceValue struct {
 	Hint              string
 }
 
+type NotificationChannel struct {
+	ID         string
+	OwnerID    string
+	Kind       string
+	Name       string
+	Config     []byte
+	Enabled    int64
+	LastError  string
+	LastSentAt sql.NullString
+	CreatedAt  string
+}
+
+type NotificationSetting struct {
+	OwnerID   string
+	Events    string
+	Threshold string
+	OpenDays  int64
+	Language  string
+	LastRunAt sql.NullString
+}
+
+type NotificationState struct {
+	OwnerID   string
+	Key       string
+	State     string
+	UpdatedAt string
+}
+
 type OdometerReading struct {
 	ID         string
 	OwnerID    string

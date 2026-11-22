@@ -262,6 +262,11 @@ p.hint { padding-left: .75rem; border-left: 3px solid var(--pico-primary-border)
    input as a block hint). */
 label > [type="checkbox"] + small { display: inline; width: auto; margin: 0; }
 
+/* A checkbox label in a fieldset that wraps (e.g. at 375 px) continues
+   below its text, not below the box. */
+fieldset > label:has(> [type="checkbox"]:first-child) { padding-inline-start: 2em; text-indent: -2em; }
+fieldset > label:has(> [type="checkbox"]:first-child) > * { text-indent: 0; }
+
 /* Login and setup: a narrow card. */
 article.auth { max-width: 28rem; margin: calc(var(--pico-spacing) * 2) auto; }
 article.auth h1 { font-size: 1.75rem; }

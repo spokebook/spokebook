@@ -101,6 +101,8 @@ alle Formulare wie gewohnt. htmx läuft ohne Inline-Styles und ohne `eval`, pass
   Strecke, Name, zugeordnetes Bike (leer = nicht zugeordnet), Status (aktiv, verworfen). Eindeutig über
   Quelle und externe ID.
 - **Rad-Zuordnung**: Quelle, Schlüssel des Rads in der Quelle, angezeigter Name, Bike.
+- **Benachrichtigung**: Kanäle (Art, Name, verschlüsselte Konfiguration, aktiv, letzter Fehler),
+  Einstellungen je Nutzer und der zuletzt gemeldete Zustand je Anlass (siehe „Benachrichtigungen“).
 
 ## Wartungskatalog
 
@@ -306,6 +308,61 @@ Endurain ist gestrichen, solange Garmin Connect direkt reicht.
   100 Downloads pro Lauf (ein Erstimport läuft über mehrere Läufe) und Abbruch bei 429 oder einem anderen
   Fehler; der nächste Lauf macht weiter. Das Zugriffstoken wird bis eine Stunde vor Ablauf wiederverwendet.
 
+## Benachrichtigungen
+
+Spokebook meldet sich von selbst, wenn etwas zu tun ist. Die Art der Benachrichtigung ist austauschbar
+(Kanal-Arten hinter einem gemeinsamen Interface im Paket `notify`); umgesetzt ist zuerst
+[ntfy](https://ntfy.sh), E-Mail kann folgen.
+
+- **Kanäle**: Ein Nutzer legt bis zu 10 Kanäle an (ntfy: Server-URL, vorbelegt mit
+  `https://ntfy.sh`, Topic, optional Access-Token), kann sie abschalten, bearbeiten, löschen und eine
+  Testmeldung senden. Die ganze Konfiguration wird mit `APP_SECRET_KEY` verschlüsselt gespeichert, weil
+  ein Topic auf einem öffentlichen Server wie ein Passwort wirkt. Ohne `APP_SECRET_KEY` sind
+  Benachrichtigungen abgeschaltet. Der letzte Fehler eines Kanals steht an ihm.
+- **Erlaubte Adressen**: Der Server eines Kanals darf nie unter einer unspezifizierten (0.0.0.0/8, ::),
+  Link-local- (169.254.0.0/16, fe80::/10), Site-local- (fec0::/10), Multicast- oder Broadcast-Adresse, in
+  192.0.0.0/24, unter einer Cloud-Metadaten-Adresse (169.254.169.254, fd00:ec2::254, fd20:ce::254,
+  fd00:c1::a9fe:a9fe, 100.100.100.200, 168.63.129.16) oder in einem IPv6-Bereich liegen, der zu IPv4
+  tunnelt oder übersetzt (6to4 2002::/16, Teredo 2001::/32, SIIT ::ffff:0:0:0/96);
+  Loopback und private Netze (127/8, ::1, 10/8, 172.16/12, 192.168/16, 100.64/10, fc00::/7, lokales NAT64
+  64:ff9b:1::/48) nur, wenn der Betreiber
+  `APP_NOTIFY_ALLOW_PRIVATE=true` setzt (z. B. für einen eigenen ntfy-Server im Heimnetz). Geprüft wird
+  die aufgelöste Adresse beim Verbindungsaufbau (auch gegen DNS-Rebinding), ohne Proxy; eine gesperrte
+  Adresse erscheint als eigener Fehler am Kanal. NAT64- (64:ff9b::/96) und IPv4-kompatible Adressen
+  (::/96) werden nach der eingebetteten IPv4-Adresse beurteilt; ein vom Netzbetreiber gewähltes
+  NAT64-Präfix wird nicht erkannt.
+- **Anlässe** (einzeln wählbar): fällige Wartung (Stufen und Schritte mit eigenem Intervall; von
+  mehreren fälligen Stufen eines Rads nur die höchste, sie schließt die niedrigeren ein, wie bei der
+  Anzeige des nächsten Fälligen; eine niedrigere nur, wenn sie dringender ist, also überfällig,
+  während die höchste erst bald fällig ist), Verschleiß verbauter Komponenten (max. Laufleistung ab 80 %;
+  ein Austauschdatum warnt erst, wenn es erreicht ist), dauerhaft fehlgeschlagener
+  Garmin-Abruf (Key abgelaufen oder nicht entschlüsselbar), Fahrten ohne zugeordnetes Rad (erneut,
+  sobald es mehr werden als zuletzt gemeldet) und eine
+  offene Wartung, die N Tage (Vorgabe 7) nach dem Anlegen nicht abgeschlossen ist. Vorgabe: Wartung
+  und Verschleiß. Nacharbeiten aus einer Wartung werden nicht gemeldet, man sieht sie beim Abschließen.
+  Ausgemusterte Räder und ausgebaute Komponenten zählen nicht.
+- **Schwelle**: „bald und überfällig“ (ab 80 % und bei 100 % des Intervalls) oder „nur überfällig“;
+  gilt für Wartung und Verschleiß.
+- **Einmal je Zustand**: Gespeichert wird je Anlass der zuletzt gemeldete Zustand (bei Fahrten ohne
+  Rad deren Anzahl; weniger wird still gespeichert). Gemeldet wird nur,
+  was neu ist oder sich verschärft (bald → überfällig, mehr Fahrten ohne Rad). Eine Stufe, die von einer
+  mindestens so dringenden höheren Stufe eingeschlossen ist, wird mit gespeichert, aber nicht selbst
+  gemeldet. Verschwindet ein Anlass
+  (Wartung erledigt), wird sein Zustand gelöscht; wird er wieder fällig, kommt eine neue Meldung.
+  Scheitert der Versand auf allen Kanälen, versucht es der nächste Lauf erneut. Hat ein Nutzer keinen
+  aktiven Kanal mehr (abgeschaltet oder gelöscht) oder spielt er eine Sicherung ein, werden alle seine
+  Zustände gelöscht, damit danach die aktuelle Lage neu gemeldet wird.
+- **Ablauf**: einmal täglich pro Nutzer (letzter Lauf gespeichert, übersteht Neustarts); das Senden
+  eines Laufs ist auf 2 Minuten begrenzt; danach bleiben noch nicht versuchte Kanäle unberührt und der
+  nächste Lauf versucht es erneut. Die Nutzer kommen nacheinander dran, ein langsamer Kanal hält die
+  übrigen also höchstens 2 Minuten auf; ein Lauf und ein gleichzeitiges Einspielen einer Sicherung
+  desselben Nutzers warten aufeinander. Neue Punkte
+  eines Rads kommen gebündelt in einer Meldung mit Link auf das Rad (`APP_BASE_URL`). Die Sprache der
+  Meldungen ist eine Einstellung, vorbelegt mit der Sprache des Browsers.
+- **Sicherung**: Die Einstellungen (Anlässe, Schwelle, Tage, Sprache) gehören dazu, Kanäle mit
+  Zugangsdaten und die gemeldeten Zustände nicht. Eine Sicherung ohne Einstellungen (ältere Version) lässt die
+  vorhandenen unverändert; eine Sprache ohne Katalog wird beim Einspielen zur Standardsprache (Englisch).
+
 ## Sicherheit
 
 - **Login**: Passkeys (WebAuthn) als Hauptweg, Passwort mit argon2id als Fallback, später optional OIDC.
@@ -321,6 +378,12 @@ Endurain ist gestrichen, solange Garmin Connect direkt reicht.
   `gosec`) und `govulncheck` in der CI, dokumentiertes Backup.
 - Zugangsdaten von Fahrtenquellen (Garmin Connect) werden mit AES-256-GCM verschlüsselt gespeichert
   (Schlüssel aus `APP_SECRET_KEY`, nicht in der Datenbank) und nie geloggt. Sie gehören nicht ins Backup.
+- Benachrichtigungskanäle ebenso; ausgehende Anfragen nur über http/https, mit Timeout und begrenzter
+  Antwort, ohne Weiterleitung und ohne Proxy. Gegen SSRF prüft der Client die aufgelöste Adresse beim
+  Verbindungsaufbau: Link-local, Site-local, Cloud-Metadaten, Multicast, Broadcast, unspezifizierte
+  Adressen, 192.0.0.0/24 sowie 6to4, Teredo und SIIT nie (auch eingebettet in NAT64- oder
+  IPv4-kompatible Adressen),
+  Loopback und private Netze nur mit `APP_NOTIFY_ALLOW_PRIVATE=true` (siehe „Benachrichtigungen“).
 
 ## Fahrplan
 
@@ -335,10 +398,12 @@ Endurain ist gestrichen, solange Garmin Connect direkt reicht.
    verbinden und trennen ohne auf einen laufenden Abruf zu warten; einfache Einkaufsliste
    (Freitext, abhaken, Gekaufte entfernen; Einträge auch aus einer offenen Wartung und als
    „Nachkaufen“ an einer Komponente).
-4. **Später**: Modulverwaltung im UI (eigene Module pro Nutzer, eigene Schritte daran, ggf. eigene
+4. **v0.4**: Benachrichtigungen über austauschbare Kanäle (zuerst ntfy) bei fälliger Wartung,
+   Verschleiß, Garmin-Fehlern, Fahrten ohne Rad und liegengebliebenen Wartungen.
+5. **Später**: Modulverwaltung im UI (eigene Module pro Nutzer, eigene Schritte daran, ggf. eigene
    Hinweise), OIDC, CSV-Export (die Sicherung deckt den Export vorerst
    ab), weitere Nutzer einladen, öffentliche API, Postgres-Implementierung bei Bedarf; erfasste
    Komponenten (Typ, Hersteller, Werte wie Verschleißgrenzen und Drehmomente) mit anderen Nutzern
    teilen, auch über Instanzen hinweg.
-5. **Nicht geplant**: Import über Strava, intervals.icu und wanderer; Import aus Endurain (gestrichen,
+6. **Nicht geplant**: Import über Strava, intervals.icu und wanderer; Import aus Endurain (gestrichen,
    solange Garmin Connect direkt reicht). Datei-Upload und Garmin Connect decken die Fahrten ab.

@@ -1,7 +1,7 @@
 // Package backup exports all data of an owner to a ZIP archive and
 // restores it. The archive holds the data as JSON (DataFile) and the
-// attachments as files. Accounts, sessions and passkeys are not part of a
-// backup.
+// attachments as files. Accounts, sessions, passkeys, ride sources and
+// notification channels are not part of a backup.
 package backup
 
 import "time"
@@ -37,6 +37,10 @@ type File struct {
 	RideGears      []RideGear      `json:"ride_gears,omitempty"`
 	Attachments    []Attachment    `json:"attachments,omitempty"`
 	ShoppingItems  []ShoppingItem  `json:"shopping_items,omitempty"`
+	// Notifications are the notification settings; nil if the owner saved
+	// none (or the backup is older). Channels and their states are not
+	// part of a backup.
+	Notifications *NotificationSettings `json:"notifications,omitempty"`
 }
 
 // Attachment is a photo or document; its content is the file File in the
@@ -79,6 +83,14 @@ type RideGear struct {
 	Name      string    `json:"name,omitempty"`
 	BikeID    string    `json:"bike_id,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+// NotificationSettings are what the owner wants to be notified about.
+type NotificationSettings struct {
+	Events    []string `json:"events"`
+	Threshold string   `json:"threshold"`
+	OpenDays  int      `json:"open_days"`
+	Language  string   `json:"language"`
 }
 
 type ShoppingItem struct {

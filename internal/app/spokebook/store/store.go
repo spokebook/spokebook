@@ -747,6 +747,86 @@ type ShoppingStore interface {
 	DeleteBoughtShoppingItems(ctx context.Context, ownerID string) (int64, error)
 }
 
+// NotificationChannel is a way to notify an owner, e.g. an ntfy topic.
+type NotificationChannel struct {
+	ID      string
+	OwnerID string
+	// Kind is the kind of channel, e.g. "ntfy".
+	Kind string
+	Name string
+	// Config is the channel's configuration, sealed (package secret); the
+	// store never sees it in plain text.
+	Config  []byte
+	Enabled bool
+	// LastError says why the last sending failed; empty if it didn't.
+	LastError  string
+	LastSentAt *time.Time
+	CreatedAt  time.Time
+}
+
+// NotificationSettings are what an owner wants to be notified about.
+type NotificationSettings struct {
+	OwnerID string
+	// Events are the IDs of the enabled events, e.g. "maintenance".
+	Events []string
+	// Threshold is the state from which items count: "soon" or "overdue".
+	Threshold string
+	// OpenDays is after how many days an open maintenance is notified.
+	OpenDays int
+	// Language is the language of the messages, e.g. "en".
+	Language string
+	// LastRunAt is when the owner's conditions were last checked.
+	LastRunAt *time.Time
+}
+
+// NotificationOwner is an owner with at least one enabled channel.
+type NotificationOwner struct {
+	OwnerID   string
+	LastRunAt *time.Time
+}
+
+// NotificationState is the state of a condition last notified, e.g. key
+// "level:<bike>:minor" in state "soon".
+type NotificationState struct {
+	Key       string
+	State     string
+	UpdatedAt time.Time
+}
+
+type NotificationStore interface {
+	CreateNotificationChannel(ctx context.Context, c NotificationChannel) error
+	GetNotificationChannel(ctx context.Context, ownerID, id string) (NotificationChannel, error)
+	// ListNotificationChannels returns the owner's channels, oldest first.
+	ListNotificationChannels(ctx context.Context, ownerID string) ([]NotificationChannel, error)
+	// UpdateNotificationChannel changes name, config and enabled.
+	UpdateNotificationChannel(ctx context.Context, c NotificationChannel) error
+	// SetNotificationChannelResult records how the last sending went; a nil
+	// sentAt keeps the last time a message was sent.
+	SetNotificationChannelResult(ctx context.Context, ownerID, id, lastError string, sentAt *time.Time) error
+	DeleteNotificationChannel(ctx context.Context, ownerID, id string) error
+	// ListNotificationOwners returns the owners with at least one enabled
+	// channel.
+	ListNotificationOwners(ctx context.Context) ([]NotificationOwner, error)
+
+	// GetNotificationSettings returns ErrNotFound if the owner saved none.
+	GetNotificationSettings(ctx context.Context, ownerID string) (NotificationSettings, error)
+	// SaveNotificationSettings creates or changes the settings except
+	// LastRunAt.
+	SaveNotificationSettings(ctx context.Context, s NotificationSettings) error
+	// SetNotificationLastRun returns ErrNotFound if the owner has no
+	// settings.
+	SetNotificationLastRun(ctx context.Context, ownerID string, at time.Time) error
+
+	// ListNotificationStates returns the owner's states by key.
+	ListNotificationStates(ctx context.Context, ownerID string) ([]NotificationState, error)
+	// SetNotificationState creates or changes the state of a key.
+	SetNotificationState(ctx context.Context, ownerID string, st NotificationState) error
+	DeleteNotificationState(ctx context.Context, ownerID, key string) error
+	// DeleteNotificationStates deletes all states of the owner, so every
+	// current condition is notified again.
+	DeleteNotificationStates(ctx context.Context, ownerID string) error
+}
+
 // Stores groups all sub-stores, both inside and outside a transaction.
 type Stores interface {
 	Users() UserStore
@@ -758,6 +838,7 @@ type Stores interface {
 	Maintenances() MaintenanceStore
 	Attachments() AttachmentStore
 	Shopping() ShoppingStore
+	Notifications() NotificationStore
 }
 
 // Store is the entry point of the data layer.

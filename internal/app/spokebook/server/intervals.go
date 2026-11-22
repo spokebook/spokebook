@@ -80,7 +80,7 @@ func (s *Server) dueItems(ctx context.Context, bike store.Bike) ([]due.Item, err
 			localizeStep(l, &items[i].Step)
 		}
 		if o := items[i].Open; o != nil {
-			o.Origin.Title, _ = builtinTexts(l, o.Origin.BuiltinID, o.Origin.Title, "")
+			o.Origin.Title, _ = catalog.BuiltinTexts(l, o.Origin.BuiltinID, o.Origin.Title, "")
 		}
 	}
 	return items, nil
