@@ -398,12 +398,13 @@ Spokebook meldet sich von selbst, wenn etwas zu tun ist. Die Art der Benachricht
    verbinden und trennen ohne auf einen laufenden Abruf zu warten; einfache Einkaufsliste
    (Freitext, abhaken, Gekaufte entfernen; Einträge auch aus einer offenen Wartung und als
    „Nachkaufen“ an einer Komponente).
-4. **v0.4**: Benachrichtigungen über austauschbare Kanäle (zuerst ntfy) bei fälliger Wartung,
+4. **v0.4 (umgesetzt)**: Optionale Seriennummer an Rädern (Rahmennummer) und Komponenten.
+5. **v0.5 (umgesetzt)**: Benachrichtigungen über austauschbare Kanäle (zuerst ntfy) bei fälliger Wartung,
    Verschleiß, Garmin-Fehlern, Fahrten ohne Rad und liegengebliebenen Wartungen.
-5. **Später**: Modulverwaltung im UI (eigene Module pro Nutzer, eigene Schritte daran, ggf. eigene
+6. **Später**: Modulverwaltung im UI (eigene Module pro Nutzer, eigene Schritte daran, ggf. eigene
    Hinweise), OIDC, CSV-Export (die Sicherung deckt den Export vorerst
    ab), weitere Nutzer einladen, öffentliche API, Postgres-Implementierung bei Bedarf; erfasste
    Komponenten (Typ, Hersteller, Werte wie Verschleißgrenzen und Drehmomente) mit anderen Nutzern
    teilen, auch über Instanzen hinweg.
-6. **Nicht geplant**: Import über Strava, intervals.icu und wanderer; Import aus Endurain (gestrichen,
+7. **Nicht geplant**: Import über Strava, intervals.icu und wanderer; Import aus Endurain (gestrichen,
    solange Garmin Connect direkt reicht). Datei-Upload und Garmin Connect decken die Fahrten ab.

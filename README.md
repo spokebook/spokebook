@@ -33,7 +33,8 @@ history stays correct even if you change the catalog later.
   mileage import from GPX/FIT/TCX files and Garmin Connect
 - **v0.3**: more modules switched on by bike features (hydraulic brakes, hub gear, belt drive,
   electronic shifting) and smaller improvements
-- **v0.4**: notifications over interchangeable channels (first ntfy) about due maintenance, worn
+- **v0.4**: optional serial numbers for bikes (frame number) and components
+- **v0.5**: notifications over interchangeable channels (first ntfy) about due maintenance, worn
   components, Garmin errors, rides without bike and forgotten open maintenances
 - **Later**: own modules in the UI, OIDC, CSV export, inviting more users, a public API, sharing
   components you entered (type, values such as wear limits and torques) with other users
